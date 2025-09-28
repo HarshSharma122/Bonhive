@@ -52,7 +52,6 @@ const Home = cache(() => {
 
   
   let isOpen = false;
-  // this is for if user delete the currency pref from the localhost
   useEffect(() => {
     const fn = async () => {
       try {

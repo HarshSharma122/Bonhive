@@ -74,16 +74,20 @@ export const GET = async () => {
 
     connectDb();
 
-
-
     const userProfile = await UserProfile.findOne({
       userId: user.user._id,
     }).select(
       "-_id -userId -invoices -updatedAt -createdAt -__v  -projectCount"
     );
-    userProfile.subscrption.id = null;
-    userProfile.subscrption.status = null;
-    userProfile.subscrption.price = null;
+
+    if (userProfile?.subscrption) {
+      userProfile.subscrption.id = null;
+      userProfile.subscrption.status = null;
+      userProfile.subscrption.price = null;
+    }
+
+    console.log(userProfile);
+    
     return NextResponse.json(
       {
         msg: userProfile,
