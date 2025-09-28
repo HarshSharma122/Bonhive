@@ -76,7 +76,7 @@ export const GET = async () => {
 
 
 
-    let userProfile = await UserProfile.findOne({
+    const userProfile = await UserProfile.findOne({
       userId: user.user._id,
     }).select(
       "-_id -userId -invoices -updatedAt -createdAt -__v  -projectCount"
