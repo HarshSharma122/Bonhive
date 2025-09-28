@@ -58,18 +58,7 @@ const Features = () => {
 
       
 
-        {/* CTA Section */}
-        <div className="mt-20 text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Ready to get started?</h2>
-          <div className="mt-8">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg transition-colors duration-300">
-              Get Started
-            </button>
-            <button className="ml-4 bg-white hover:bg-gray-100 text-blue-600 font-bold py-3 px-8 rounded-lg text-lg border border-blue-600 transition-colors duration-300">
-              Learn More
-            </button>
-          </div>
-        </div>
+      
       </div>
     </div>
   );
