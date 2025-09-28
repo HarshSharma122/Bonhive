@@ -1,0 +1,88 @@
+import { connectDb } from "@/lib/db";
+import USER from "@/models/user.model";
+import bcrypt from "bcryptjs";
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import GitHubProvider from "next-auth/providers/github";
+import GoogleProvider from "next-auth/providers/google";
+
+export const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      id: "credentials",
+      name: "credentials",
+      credentials: {
+        username: { label: "username", type: "text"},
+        email: { label: "email", type: "email" },
+        password: { label: "password", type: "password" },
+      },
+
+      async authorize(credentials) {
+        if (!credentials?.username || !credentials?.email || !credentials?.password) {
+          throw new Error("Please provide username, email and password");
+        }
+
+        try {
+          await connectDb();
+          const user = await USER.findOne({ email: credentials.email, username:credentials.username});
+
+          if (!user) {
+            throw new Error("No user found!");
+          }
+
+          const isValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          );
+          if (!isValid) {
+            throw new Error("invalid password");
+          }
+          return {
+            id: user._id.toString(),
+            email: user.email,
+            name:user.username,
+          };
+        } catch (error) {
+          console.error("Auth error: ", error);
+          throw error;
+        }
+      },
+    }),
+
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    GitHubProvider({
+      clientId: process.env.GITHUB_ID!,
+      clientSecret: process.env.GITHUB_SECRET!,
+    }),
+  ],
+
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id?.toString();
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user._id = token.id as string;
+      }
+      return session;
+    },
+  },
+
+  pages: {
+    signIn: "/login",
+    error: "/login",
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60,
+  },
+
+  secret: process.env.NEXTAUTH_SECRET,
+};

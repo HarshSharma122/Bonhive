@@ -1,0 +1,23 @@
+import type { Metadata } from "next";
+import { GeistSans } from "geist/font/sans";
+import "../globals.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+export const metadata: Metadata = {
+  title: "Bonhive",
+  description: "CRM for freelancers",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <div className={`${GeistSans.className} scroll-smooth`}>
+      <Header />
+      {children}
+      <Footer />
+    </div>
+  );
+}
