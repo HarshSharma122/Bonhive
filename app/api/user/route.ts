@@ -85,9 +85,6 @@ export const GET = async () => {
       userProfile.subscrption.status = null;
       userProfile.subscrption.price = null;
     }
-
-    console.log(userProfile);
-    
     return NextResponse.json(
       {
         msg: userProfile,
