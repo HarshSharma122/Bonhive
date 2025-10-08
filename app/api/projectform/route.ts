@@ -21,7 +21,6 @@ export const POST = async (request: NextRequest) => {
     const {
       projectName,
       clientName,
-      clientLanguage,
       bidAmount,
       desc,
       duration,
@@ -42,8 +41,7 @@ export const POST = async (request: NextRequest) => {
       !desc ||
       !clientBudget ||
       !notes ||
-      !leadSource ||
-      !clientLanguage
+      !leadSource
     ) {
       throw new Error("Please fill all the details into the form!");
     }
@@ -57,7 +55,6 @@ export const POST = async (request: NextRequest) => {
         bidAmount,
         duration,
         clientBudget,
-        clientLanguage,
         email,
         contact,
         location,
@@ -87,7 +84,6 @@ export const POST = async (request: NextRequest) => {
       await CLIENT.create({
         clientName,
         bidAmount,
-        clientLanguage,
         clientBudget,
         email,
         contact,
@@ -127,7 +123,6 @@ export const POST = async (request: NextRequest) => {
         bidAmount,
         duration,
         clientBudget,
-        clientLanguage,
         email,
         contact,
         location,
@@ -157,7 +152,6 @@ export const POST = async (request: NextRequest) => {
       await CLIENT.create({
         clientName,
         bidAmount,
-        clientLanguage,
         clientBudget,
         email,
         contact,

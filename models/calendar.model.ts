@@ -51,7 +51,6 @@ const calendarSchema = new Schema<calendarType>(
     },
     price:{
       type:Number,
-      required:true,
     }
   },
   {

@@ -1,6 +1,9 @@
 "use client";
 
-import Invoice from "@/components/Invoice";
+import dynamic from "next/dynamic";
+const Invoice = dynamic(()=>import("@/components/Invoice"),{
+  ssr:false
+})
 import React, { Suspense } from "react";
 const page = () => {
   return (

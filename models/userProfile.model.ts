@@ -8,6 +8,7 @@ interface Invoice {
 type user = {
   _id: mongoose.Types.ObjectId;
   userId: string;
+  userName:string;
   userLanguage: string;
   invoices: Invoice[];
   createdAt: Date;
@@ -34,6 +35,9 @@ const userProfileSchema = new Schema<user>(
     userId: {
       type: String,
       required: true,
+    },
+    userName:{
+      type:String
     },
     userLanguage: {
       type: String,

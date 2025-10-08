@@ -49,6 +49,16 @@ const Page = cache(() => {
     }
   };
 
+  const googleSignin = () => {
+    signIn("google", { callbackUrl: "/" });
+    localStorage.clear();
+  };
+
+  const githubSignin = () => {
+    signIn("github", { callbackUrl: "/" });
+    localStorage.clear();
+  };
+
   return (
     <motion.div
       className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4"
@@ -56,7 +66,16 @@ const Page = cache(() => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      {msg && <motion.div initial={{opacity:0, y:30}} animate={{opacity:1, y:0}} transition={{duration:0.5}} className="absolute top-10 right-10 bg-white px-4  py-1">{msg}</motion.div>}
+      {msg && (
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="absolute top-10 right-10 bg-white px-4  py-1"
+        >
+          {msg}
+        </motion.div>
+      )}
       <div className="w-full max-w-md rounded-2xl bg-white shadow-xl p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-2">
@@ -136,7 +155,7 @@ const Page = cache(() => {
 
         <div className="grid grid-cols-1 gap-3">
           <button
-            onClick={() => signIn("google" , {callbackUrl:'/'})}
+            onClick={googleSignin}
             className="flex items-center justify-center gap-3 w-full border border-gray-300 rounded-lg py-3 px-4 hover:bg-gray-50 hover:shadow-sm transition-all"
           >
             <FaGoogle className="text-red-500 text-lg" />
@@ -144,7 +163,7 @@ const Page = cache(() => {
           </button>
 
           <button
-            onClick={() => signIn("github" , {callbackUrl:'/'})}
+            onClick={githubSignin}
             className="flex items-center justify-center gap-3 w-full border border-gray-300 rounded-lg py-3 px-4 hover:bg-gray-50 hover:shadow-sm transition-all"
           >
             <FaGithub className="text-gray-800 text-lg" />

@@ -14,11 +14,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className={`${GeistSans.className} flex text-white `}>
-      <div className="">
-        <AsideDash />
+    <div className={`${GeistSans.className} flex text-white bg-gray-100 `}>
+      <div className="lg:pl-5 lg:pt-5">
+        <AsideDash/>
       </div>
-      <div className=" lg:ml-55 md:ml-55  lg:pt-0 pt-10   lg:w-[90vw] w-[100vw] bg-gray-950 ">
+      <div className="lg:pt-0 pt-10   lg:w-[90vw] w-[100vw]">
         {children}
       </div>
     </div>

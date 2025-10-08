@@ -1,87 +1,66 @@
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "../auth/[...nextauth]/options";
-import UserProfile from "@/models/userProfile.model";
 import crypto from "crypto";
-import { redirect } from "next/navigation";
 import PAYMENT from "@/models/payment.model";
+import UserProfile from "@/models/userProfile.model";
 import { connectDb } from "@/lib/db";
-import { razorpay } from "@/utilis/razorpay";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../auth/[...nextauth]/options";
+
 export const POST = async (req: NextRequest) => {
   try {
-    const user = await getServerSession(authOptions);
+    await connectDb();
 
+    const user = await getServerSession(authOptions);
     if (!user) {
-      return NextResponse.json(
-        {
-          msg: "You are not authenticated first go for a authentication",
-        },
-        {
-          status: 404,
-        }
-      );
+      return NextResponse.json({ msg: "Not authenticated" }, { status: 401 });
     }
-    const userProfile = await UserProfile.findOne({
-      userId: user.user._id,
-    });
+
     const {
-      razorpay_signature,
+      razorpay_order_id,
       razorpay_payment_id,
-      razorpay_subscrption_id,
+      razorpay_signature,
       amount,
       PricePlanType,
-      subscriptionId,
     } = await req.json();
 
-    const date = new Date();
-  
+    // 🔹 Generate expected signature
     const generated_signature = crypto
       .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
-      .update(razorpay_payment_id + "|" + subscriptionId, "utf-8")
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
       .digest("hex");
 
-    const isAuthentic = generated_signature === razorpay_signature;
-
-    if (!isAuthentic) {
-      redirect(`${process.env.FRONTEND_URL}/paymentFailed`);
+    // 🔹 Compare
+    if (generated_signature !== razorpay_signature) {
+      return NextResponse.json({ msg: "Payment verification failed" }, { status: 400 });
     }
 
+    // 🔹 Save Payment in DB
     await PAYMENT.create({
-      razorpay_signature,
+      razorpay_order_id,
       razorpay_payment_id,
-      razorpay_subscrption_id,
+      razorpay_signature,
+      amount: amount / 100,
+      userId: user.user._id,
+      type: "one-time",
+      status: "success",
     });
-    connectDb();
 
-    
+    // 🔹 Update User Profile
+    const userProfile = await UserProfile.findOne({ userId: user.user._id });
+    if (userProfile) {
+      userProfile.bonhivePlan = PricePlanType;
+      userProfile.isPlanSelected = true;
+      userProfile.subscrption = {
+        id: razorpay_order_id,
+        createdDate: new Date(),
+        price: amount / 100,
+        status: "active",
+      };
+      await userProfile.save();
+    }
 
-    userProfile.bonhivePlan = PricePlanType;
-    userProfile.isPlanSelected = true;
-    userProfile.subscrption.id = subscriptionId;
-    userProfile.subscrption.createdDate = date
-    userProfile.subscrption.price = amount / 100;
-    userProfile.subscrption.status = "active";
-    userProfile.save();
-
-
-
-
-    return NextResponse.json(
-      {
-        msg: "Payment is verified",
-      },
-      {
-        status: 200,
-      }
-    );
+    return NextResponse.json({ msg: "Payment verified successfully" }, { status: 200 });
   } catch (error) {
-    return NextResponse.json(
-      {
-        msg: error,
-      },
-      {
-        status: 500,
-      }
-    );
+    return NextResponse.json({ msg: error }, { status: 500 });
   }
 };

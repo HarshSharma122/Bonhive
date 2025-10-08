@@ -7,18 +7,17 @@ import { useSonnerDetailsStore } from "@/zustand/useSonnerDetailsStore";
 import { motion } from "framer-motion";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import userImg from "../../../../public/user.svg";
+import { Mail, Calendar, Star, LogOut, MessageSquare, Crown } from "lucide-react";
+
 
 const Page = () => {
   const { data: session } = useSession();
   const { addSonnerDetails } = useSonnerDetailsStore();
   const [isRoaming, setIsRoaming] = useState(false);
-  const [circulate, setCirculate] = useState(false);
   const { setIsShow } = useSonnerStore();
   const { user } = useProfileStore();
-  const router = useRouter();
 
   const feedbackOptions = [
     "Improvement related feedback",
@@ -30,13 +29,6 @@ const Page = () => {
   const currentPlan = user?.bonhivePlan;
 
   const createdDate = new Date(user.subscrption.createdDate);
-  const currentDate = new Date();
-  const diff = currentDate.getTime() - createdDate.getTime();
-  const diffImDays = Math.round(diff / (1000 * 60 * 60 * 24)) + 1;
-
-  const remainingDays = diffImDays;
-  const [cancelNote, setCancelNote] = useState<string>("");
-
   const [inputValue, setInputValue] = useState({
     feedBack_type: "",
     feedBack: "",
@@ -91,46 +83,28 @@ const Page = () => {
       return error;
     }
   };
-  const cancelSubscription = async () => {
-    setCirculate(true);
-    try {
-      const response = await fetch("/api/cancel_subscrption", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-      const convert = await response.json();
-      if (response.ok) {
-        setCancelNote(convert.msg);
-        setTimeout(() => {
-          localStorage.removeItem("projects");
-          router.push("/");
-          location.reload();
-        }, 3000);
-      }
-    } catch (error) {
-      alert("Something went wrong");
-      return error;
-    }
-  };
 
   const signout = () => {
     signOut({ callbackUrl: "/auth/register" });
     localStorage.clear();
   };
+
+  const getPlanColor = (plan: string) => {
+    switch (plan?.toLowerCase()) {
+      case 'premium':
+        return 'from-amber-500 to-orange-500';
+      case 'pro':
+        return 'from-purple-500 to-pink-500';
+      case 'enterprise':
+        return 'from-blue-500 to-cyan-500';
+      default:
+        return 'from-gray-500 to-gray-600';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 py-8 px-4">
-      {cancelNote && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50"
-        >
-          {cancelNote}
-        </motion.div>
-      )}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 py-8 px-4">
+     
 
       <motion.div
         className="max-w-6xl mx-auto"
@@ -138,156 +112,149 @@ const Page = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="flex items-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
-            Hello, {session?.user.name} 👋
-          </h1>
-          <div className="ml-4 w-12 h-12 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 overflow-hidden shadow-lg">
-            {session?.user.image ? (
-              <Image
-                src={session.user.image}
-                alt="user_img"
-                width={48}
-                height={48}
-                className="object-cover w-full h-full"
-              />
-            ) : (
-              <Image
-                src={userImg}
-                alt="user_img"
-                width={48}
-                height={48}
-                className="object-cover w-full h-full"
-              />
-            )}
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-500 to-purple-600 overflow-hidden shadow-lg flex items-center justify-center">
+              {session?.user.image ? (
+                <Image
+                  src={session.user.image}
+                  alt="user_img"
+                  width={64}
+                  height={64}
+                  className="object-cover w-full h-full"
+                />
+              ) : (
+                <Image
+                  src={userImg}
+                  alt="user_img"
+                  width={32}
+                  height={32}
+                  className="object-cover"
+                />
+              )}
+            </div>
+            <div className="ml-4">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+                Hello, {session?.user.name} 👋
+              </h1>
+              <p className="text-gray-600 text-lg">
+                Welcome to your account dashboard
+              </p>
+            </div>
           </div>
         </div>
-
-        <p className="text-gray-300 mb-8 text-lg">
-          Welcome to your account dashboard
-        </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Profile Card */}
           <motion.div
-            className="bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-700"
+            className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden"
             whileHover={{ y: -5 }}
             transition={{ duration: 0.2 }}
           >
             <div className="p-6">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-1">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-1">
                     {session?.user.name}
                   </h2>
-                  <p className="text-gray-400">{session?.user.email}</p>
+                  <div className="flex items-center text-gray-600">
+                    <Mail size={16} className="mr-2" />
+                    <span>{session?.user.email}</span>
+                  </div>
                 </div>
-                <span className="px-3 py-1 bg-indigo-900 text-indigo-200 rounded-full text-sm">
-                  {user?.bonhivePlan || "User"}
+                <span className={`px-4 py-2 bg-gradient-to-r ${getPlanColor(currentPlan)} text-white rounded-full text-sm font-medium shadow-lg`}>
+                  {user?.bonhivePlan || "Free"}
                 </span>
               </div>
-            </div>
 
-            {/* Plan Info */}
-            <div className="px-6 pb-6">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-5 rounded-xl shadow-lg">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-sm font-medium opacity-80">
-                      Current Plan
-                    </p>
-                    <p className="text-xl font-bold mt-1">{currentPlan}</p>
+              {/* Plan Info */}
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-6 rounded-2xl shadow-lg mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Crown size={24} className="mr-3" />
+                    <div>
+                      <p className="text-sm font-medium opacity-90">
+                        Current Plan
+                      </p>
+                      <p className="text-2xl font-bold mt-1">{currentPlan}</p>
+                    </div>
                   </div>
                   <div className="text-right">
                     {currentPlan === "Free" ? (
-                      <p className="text-sm font-medium">Free plan</p>
+                      <p className="text-sm font-medium opacity-90">Free plan</p>
                     ) : (
                       <div>
-                        <p className="text-sm font-medium opacity-80">
-                          Monthly plan
+                        <p className="text-sm font-medium opacity-90 flex items-center">
+                          <Calendar size={14} className="mr-1" />
+                          Started on
                         </p>
                         <p className="text-lg font-bold mt-1">
-                          {remainingDays} / 30 Days
+                          {createdDate.toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
                         </p>
                       </div>
                     )}
                   </div>
                 </div>
-
-               
               </div>
 
-              {remainingDays >= 0 && user.bonhivePlan === "Pro" && (
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <button
-                    onClick={cancelSubscription}
-                    disabled={circulate}
-                    className={`mt-4 w-full bg-rose-600 hover:bg-rose-700 py-3 rounded-xl font-medium
-                      ${
-                        circulate
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-blue-600 hover:bg-blue-700 transition-colors"
-                      }        
-                      `}
-                  >
-                    {circulate ? (
-                      <>
-                        <svg
-                          className="animate-spin h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          ></circle>
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          ></path>
-                        </svg>
-                        wait.....
-                      </>
-                    ) : (
-                      <>cancel subscrption</>
-                    )}
-                  </button>
-                </motion.div>
-              )}
+              {/* Account Stats */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                  <div className="flex items-center">
+                    <Star size={20} className="text-amber-500 mr-2" />
+                    <div>
+                      <p className="text-sm text-gray-600">Account Status</p>
+                      <p className="font-semibold text-gray-900">Active</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                  <div className="flex items-center">
+                    <Calendar size={20} className="text-blue-500 mr-2" />
+                    <div>
+                      <p className="text-sm text-gray-600">Member Since</p>
+                      <p className="font-semibold text-gray-900">
+                        {new Date().getFullYear()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </motion.div>
 
           {/* Feedback Form */}
           <motion.div
-            className="bg-gray-800 rounded-2xl shadow-xl overflow-hidden border border-gray-700 p-6"
+            className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6"
             whileHover={{ y: -5 }}
             transition={{ duration: 0.2 }}
           >
-            <h3 className="text-xl font-bold text-white mb-2">
-              Share your feedback
-            </h3>
-            <p className="text-gray-400 mb-6">
-              We had love to hear your suggestions to improve our service.
-            </p>
-
-            <div className="space-y-5">
+            <div className="flex items-center mb-6">
+              <MessageSquare size={24} className="text-blue-600 mr-3" />
               <div>
-                <label className="block text-gray-300 text-sm font-medium mb-2">
+                <h3 className="text-xl font-bold text-gray-900">
+                  Share your feedback
+                </h3>
+                <p className="text-gray-600">
+                  We had love to hear your suggestions to improve our service.
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <label className="block text-gray-700 text-sm font-semibold mb-3">
                   Feedback Type
                 </label>
                 <select
                   value={inputValue.feedBack_type}
                   onChange={handleInput}
-                  className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-4 bg-white text-gray-900 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                   name="feedBack_type"
                 >
                   <option value="">Select feedback type</option>
@@ -300,16 +267,16 @@ const Page = () => {
               </div>
 
               <div>
-                <label className="block text-gray-300 text-sm font-medium mb-2">
+                <label className="block text-gray-700 text-sm font-semibold mb-3">
                   Your Feedback
                 </label>
                 <textarea
-                  rows={4}
+                  rows={5}
                   value={inputValue.feedBack}
                   onChange={handleInput}
-                  placeholder="Write your feedback here..."
+                  placeholder="Write your detailed feedback here... We're always looking for ways to improve!"
                   name="feedBack"
-                  className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full p-4 bg-white text-gray-900 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200"
                 ></textarea>
               </div>
 
@@ -319,29 +286,80 @@ const Page = () => {
               >
                 <button
                   onClick={handleSubmit}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 py-3 rounded-xl font-medium"
                   disabled={isRoaming}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 rounded-xl font-semibold shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isRoaming ? "Submitting..." : "Submit Feedback"}
+                  {isRoaming ? (
+                    <div className="flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Submitting...
+                    </div>
+                  ) : (
+                    "Submit Feedback"
+                  )}
                 </button>
               </motion.div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-gray-700">
+            {/* Logout Section */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
               <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <Button
                   varient="bgFill"
-                  className="w-full border-rose-500 text-rose-500 hover:bg-rose-500 hover:text-white py-3 rounded-xl font-medium"
+                  className="w-full border-red-500 text-red-500 hover:bg-red-500 hover:text-white py-3 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center"
                   onclick={signout}
                 >
-                  Logout
+                  <LogOut size={18} className="mr-2" />
+                  Logout Account
                 </Button>
               </motion.div>
+              <p className="text-center text-gray-500 text-sm mt-3">
+                Secure and encrypted account management
+              </p>
             </div>
           </motion.div>
+        </div>
+
+        {/* Additional Info Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-green-100 rounded-xl mr-4">
+                <Star size={20} className="text-green-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">Premium Support</h4>
+                <p className="text-gray-600 text-sm">24/7 customer care</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-blue-100 rounded-xl mr-4">
+                <Calendar size={20} className="text-blue-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">Account Security</h4>
+                <p className="text-gray-600 text-sm">Protected & encrypted</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-6 rounded-2xl shadow-lg border border-gray-200">
+            <div className="flex items-center">
+              <div className="p-3 bg-purple-100 rounded-xl mr-4">
+                <MessageSquare size={20} className="text-purple-600" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-gray-900">Quick Response</h4>
+                <p className="text-gray-600 text-sm">Fast feedback processing</p>
+              </div>
+            </div>
+          </div>
         </div>
       </motion.div>
     </div>

@@ -1,171 +1,197 @@
 "use client";
 
 import { useProfileStore } from "@/zustand/userProfileStore";
-import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, ArrowRight } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 import Roaming from "./Roaming";
+
+
+
 const Header = () => {
   let isLoggedIn = false;
   const { status } = useSession();
   if (status == "authenticated") {
     isLoggedIn = true;
   }
-
   const [openBar, setOpenBar] = useState(false);
   const [isRoaming, setIsRoaming] = useState(false);
   const { user } = useProfileStore();
+  
   const startRoaming = () => {
     setIsRoaming(true);
   };
+
+  const navItems = [
+    { href: "/", label: "Home" },
+    { href: "#price", label: "Pricing" },
+    { href: "#features", label: "Features" },
+    { href: "#contact", label: "Contact" },
+  ];
+
   return (
     <>
       {isRoaming && <Roaming />}
 
-      {openBar && (
-        <motion.div
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8 }}
-          className={`bg-black  text-white lg:hidden sm:hidden top-0 right-0 left-0 h-screen w-screen absolute`}
-        >
-          <div className="flex items-center justify-between px-3 py-2">
-            <X
-              onClick={() => setOpenBar(false)}
-              className="flex font-semibold  border-1 rounded-full bg-white text-black cursor-pointer"
-            />
-            <aside className="flex gap-2">
-              {user?.isPlanSelected === true && (
-                <Link
-                  href="/dashboard"
-                  className="bg-[#0096c7] hover:bg-blue-500 text-white px-3 py-1 rounded-md  hover:scale-105 transition duration-300 cursor-pointer"
-                >
-                  DashBoard
-                </Link>
-              )}
+      <AnimatePresence>
+        {openBar && (
+          <motion.div
+            initial={{ opacity: 0, x: "100%" }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: "100%" }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="fixed inset-0 bg-gray-900 text-white z-50 lg:hidden border-l border-gray-700"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-700 bg-gray-800">
+              <div className="font-extrabold text-white text-2xl">Bonhive</div>
+              <button
+                onClick={() => setOpenBar(false)}
+                className="p-2 hover:bg-gray-700 rounded-full transition-colors duration-200"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
 
-              {isLoggedIn ? (
-                <>
+            {/* Navigation */}
+            <nav className="flex flex-col p-6 space-y-4 bg-gray-900 h-full">
+              {navItems.map((item, index) => (
+                <motion.a
+                  key={item.href}
+                  href={item.href}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  onClick={() => setOpenBar(false)}
+                  className="flex items-center justify-between p-4 text-lg font-semibold bg-gray-800 hover:bg-gray-700 rounded-xl transition-all duration-300 group border border-gray-700"
+                >
+                  {item.label}
+                  <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+                </motion.a>
+              ))}
+              
+              {/* Mobile Auth Buttons */}
+              <div className="pt-6 space-y-3 border-t border-gray-700 mt-4">
+                {user?.isPlanSelected === true && (
+                  <Link
+                    href="/dashboard"
+                    onClick={() => {
+                      startRoaming();
+                      setOpenBar(false);
+                    }}
+                    className="flex items-center justify-center w-full bg-white text-black hover:bg-gray-100 font-semibold px-4 py-3 rounded-xl hover:scale-105 transition-all duration-300 cursor-pointer border border-gray-300"
+                  >
+                    Go to Dashboard
+                  </Link>
+                )}
+
+                {isLoggedIn ? (
                   <Link
                     href="/auth/login"
-                    className="bg-[#0096c7] hover:bg-blue-500 text-white px-3 py-1 rounded-md hover:scale-105 transition duration-300 cursor-pointer"
+                    onClick={() => {
+                      startRoaming();
+                      setOpenBar(false);
+                    }}
+                    className="flex items-center justify-center w-full bg-black hover:bg-gray-600 text-white font-semibold px-4 py-3 rounded-xl hover:scale-105 transition-all duration-300 cursor-pointer border border-gray-600"
                   >
-                    Login
+                    Sign In
                   </Link>
-                </>
-              ) : (
-                <Link
-                  href="/auth/register"
-                  className="bg-[#0096c7] hover:bg-blue-500 px-3 py-1 rounded-md text-white hover:scale-105 transition duration-300 cursor-pointer"
-                >
-                  Register
-                </Link>
-              )}
-            </aside>
-          </div>
+                ) : (
+                  <Link
+                    href="/auth/register"
+                    onClick={() => setOpenBar(false)}
+                    className="flex items-center justify-center w-full bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-semibold px-4 py-3 rounded-xl hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg border border-gray-600"
+                  >
+                    Get Started Free
+                  </Link>
+                )}
+              </div>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-          <nav className="flex flex-col items-center justify-center  gap-7 mt-20 text-xl">
-            <a
-              href=""
-              className="font-semibold bg-[#fff] text-black px-2 transition-all duration-300 rounded-md"
+      {/* Main Header */}
+      <motion.header
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="sticky top-0 z-40  backdrop-blur-sm"
+      >
+        <div className="flex items-center justify-between px-4 py-4 max-w-7xl mx-auto">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2 group">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="font-extrabold text-black text-2xl md:text-3xl tracking-tight"
             >
-              Home
-            </a>
+              Bonhive
+            </motion.div>
+            <div className="w-2 h-2 bg-gray-900 rounded-full group-hover:scale-150 transition-transform duration-300"></div>
+          </Link>
 
-            <a
-              href="#price"
-              className=" hover:bg-[#fff] hover:text-black hover:px-2 transition-all duration-300 rounded-md"
-            >
-              Pricing
-            </a>
-            <a
-              href="#features"
-              className="  hover:bg-[#fff] hover:text-black hover:px-2 transition-all  rounded-md duration-300"
-            >
-              Features
-            </a>
-            <a
-              href="#contact"
-              className="  hover:bg-[#fff] hover:text-black hover:px-2 transition-all  rounded-md duration-300"
-            >
-              Contacts
-            </a>
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center space-x-1">
+            {navItems.map((item, index) => (
+              <motion.a
+                key={index}
+                href={item.href}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`px-4 py-1.5 text-sm rounded-xl font-medium transition-all duration-300 border border-transparent ${
+                  item.href === "" 
+                    ? "bg-gray-700 text-white shadow-inner border-gray-600" 
+                    : "text-gray-800 hover:bg-gray-800 hover:text-white border-gray-800"
+                }`}
+              >
+                {item.label}
+              </motion.a>
+            ))}
           </nav>
-        </motion.div>
-      )}
-      <div className="flex items-center justify-between py-3 text-white bg-black px-4">
-        <div className="font-extrabold text-white text-3xl">Bonhive</div>
 
-        <nav className="lg:flex sm:flex hidden gap-10 text-sm items-center justify-center">
-          <a
-            href=""
-            className="font-semibold bg-[#0096c7] text-white px-2 py-2 transition-all duration-300 rounded-md"
-          >
-            Home
-          </a>
+          {/* Desktop Auth Buttons */}
+          <div className="hidden lg:flex items-center space-x-3">
+            {user?.isPlanSelected === true && (
+              <Link
+                href="/dashboard"
+                onClick={startRoaming}
+                className="bg-white text-gray-900 hover:bg-gray-100 font-semibold px-5 py-2 rounded-xl hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg text-sm hover:shadow-xl border border-gray-300"
+              >
+                Dashboard
+              </Link>
+            )}
 
-          <div className="flex gap-3 text-gray-500">
-            <a
-              href="#price"
-              className=" hover:bg-[#0096c7] text-white transition-all px-2 py-2 duration-300 rounded-md"
-            >
-              Pricing
-            </a>
-            <a
-              href="#features"
-              className="  hover:bg-[#0096c7] text-white transition-all px-2 py-2 duration-300 rounded-md"
-            >
-              Features
-            </a>
-            <a
-              href="#contact"
-              className="  hover:bg-[#0096c7] text-white transition-all duration-300 rounded-md px-2 py-2"
-            >
-              Contacts
-            </a>
-          </div>
-        </nav>
-
-        <aside className="lg:flex sm:flex hidden gap-2">
-          {user?.isPlanSelected === true && (
-            <Link
-              href="/dashboard"
-              onClick={startRoaming}
-              className="bg-[#0096c7] hover:bg-blue-500 text-white px-3 py-1 rounded-md  hover:scale-105 transition duration-300 cursor-pointer"
-            >
-              DashBoard
-            </Link>
-          )}
-
-          {isLoggedIn ? (
-            <>
+            {isLoggedIn ? (
               <Link
                 href="/auth/login"
                 onClick={startRoaming}
-                className="bg-[#0096c7] hover:bg-blue-500 text-white px-3 py-1 rounded-md hover:scale-105 transition duration-300 cursor-pointer"
+                className="bg-black text-sm hover:bg-gray-600 text-white font-semibold px-5 py-2 rounded-xl hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg border border-gray-600"
               >
-                Login
+                Sign In
               </Link>
-            </>
-          ) : (
-            <Link
-              href="/auth/register"
-              className="bg-[#0096c7] hover:bg-blue-500 px-3 py-1 rounded-md text-white hover:scale-105 transition duration-300 cursor-pointer"
-            >
-              Register
-            </Link>
-          )}
-        </aside>
+            ) : (
+              <Link
+                href="/auth/register"
+                className="bg-gradient-to-r text-sm from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-bold px-6 py-2 rounded-xl hover:scale-105 transition-all duration-300 cursor-pointer shadow-lg hover:shadow-xl border border-gray-600"
+              >
+                Get Started
+              </Link>
+            )}
+          </div>
 
-        <span
-          onClick={() => setOpenBar(true)}
-          className="lg:hidden sm:hidden flex"
-        >
-          <Menu />
-        </span>
-      </div>
+          {/* Mobile Menu Button */}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setOpenBar(true)}
+            className="lg:hidden p-2 bg-gray-800 hover:bg-gray-700 rounded-xl transition-colors duration-200 border border-gray-700"
+          >
+            <Menu className="w-6 h-6 text-white" />
+          </motion.button>
+        </div>
+      </motion.header>
     </>
   );
 };

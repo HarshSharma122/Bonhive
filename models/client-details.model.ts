@@ -8,7 +8,6 @@ interface clientType {
   updatedAt: Date;
   userId: string;
   clientBudget: number;
-  clientLanguage:string;
   email: string;
   contact: string;
   location: string;
@@ -25,10 +24,6 @@ const clientSchema = new Schema<clientType>(
     userId: {
       type: String,
       required: true,
-    },
-    clientLanguage:{
-      type:String,
-      required:true,
     },
     clientBudget: {
       type: Number,

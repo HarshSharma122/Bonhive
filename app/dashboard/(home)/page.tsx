@@ -1,368 +1,413 @@
 "use client";
 
-import { useCurrencyPrefStore } from "@/zustand/useCurrencyprefStore";
-import { projects, useProjectStore } from "@/zustand/useProjectStore";
+const Chart = dynamic(() => import("@/utilis/projectChart"), {
+  ssr: false,
+  loading: () => <p>Loading chart...</p>,
+});
+const RevenueChart = dynamic(() => import("@/utilis/revenueChart"), {
+  ssr: false,
+  loading: () => <p>Loading chart...</p>,
+});
+
+import { CardProps } from "@/types/bonhive-types";
+import { fetchProjects, fetchUser } from "@/utilis/fetchData";
+import { formatPrice } from "@/utilis/formatPrice";
+import { useProjectStore } from "@/zustand/useProjectStore";
 import { useProfileStore } from "@/zustand/userProfileStore";
-import { useStatusStore } from "@/zustand/useshowStatusStore";
-import { motion } from "framer-motion";
-import { CheckCircle, Circle, Clock, Projector, Users } from "lucide-react";
+import { useSonnerStore } from "@/zustand/useSonner";
+import { useSonnerDetailsStore } from "@/zustand/useSonnerDetailsStore";
+import { AnimatePresence, motion } from "framer-motion";
+import {
+  CheckCircle,
+  Circle,
+  Clock,
+  Projector,
+  TrendingUp,
+  X,
+} from "lucide-react";
+import { useSession } from "next-auth/react";
+import dynamic from "next/dynamic";
 import React, { useEffect, useState } from "react";
 import { MdPayment } from "react-icons/md";
-import {
-  Area,
-  Bar,
-  CartesianGrid,
-  ComposedChart,
-  Legend,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-
+import useSWR from "swr";
 // ------------------ Reusable Stat Card ------------------
-type CardProps = {
-  title: string;
-  value?: string | number;
-  delay: number;
-  icon: React.ReactNode;
-};
 
-const StatCard = ({ title, value, delay, icon }: CardProps) => (
+const StatCard = ({
+  title,
+  value,
+  delay,
+  icon,
+  description,
+  trend,
+}: CardProps) => (
   <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.5, delay: delay * 0.1 }}
-    className="rounded-xl bg-gradient-to-br from-gray-900 to-gray-800 text-white p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    whileHover={{ y: -5, scale: 1.02 }}
+    transition={{
+      duration: 0.4,
+      delay: delay * 0.1,
+      type: "spring",
+      stiffness: 300,
+    }}
+    className="relative rounded-2xl bg-white text-gray-900 p-6 shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 group overflow-hidden"
   >
-    <div className="flex justify-between items-start">
-      <div>
-        <h3 className="text-sm font-medium text-white/70">{title}</h3>
+    {/* Accent border */}
+    <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-blue-500 to-purple-500" />
+
+    <div className="relative z-10 flex justify-between items-start">
+      <div className="flex-1">
+        <h3 className="text-sm font-medium text-gray-600 mb-1">{title}</h3>
         <motion.p
-          className="text-3xl font-bold mt-2"
+          className="text-2xl font-bold text-gray-900"
           initial={{ scale: 0.9 }}
           animate={{ scale: 1 }}
           transition={{ duration: 0.3, delay: delay * 0.1 + 0.2 }}
         >
-          {value || 0}
+          {value ?? 0}
         </motion.p>
+        {description && (
+          <p className="text-xs text-gray-500 mt-1">{description}</p>
+        )}
+        {trend && (
+          <p className="text-xs text-green-500 font-medium mt-1">{trend}</p>
+        )}
       </div>
-      <div className="p-2 bg-white/10 rounded-lg">{icon}</div>
+      <div className="p-3 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl border border-blue-100 group-hover:from-blue-100 group-hover:to-purple-100 transition-colors duration-300">
+        {icon}
+      </div>
     </div>
   </motion.div>
 );
 
-type graphType = {
-  completed?: number;
-  name?: string;
-  projects?: number;
-  revenue?: number;
-};
+// Revenue Card Component
+const RevenueCard = ({
+  title,
+  value,
+  subtitle,
+  trend,
+  delay,
+}: {
+  title: string;
+  value: string | number;
+  subtitle: string;
+  trend?: string;
+  delay: number;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: delay * 0.1 }}
+    className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+  >
+    <h3 className="text-sm font-medium text-gray-600 mb-2">{title}</h3>
+    <p className="text-2xl font-bold text-gray-900 mb-1">{value}</p>
+    <p className="text-sm text-gray-500">{subtitle}</p>
+    {trend && (
+      <p className="text-xs text-green-500 font-medium mt-1">{trend}</p>
+    )}
+  </motion.div>
+);
+
+// Custom Tooltip for charts
 
 const Page = () => {
-  const { currencyPref } = useCurrencyPrefStore();
   const { projects, addProjects } = useProjectStore();
-  const [newArr, setNewArr] = useState<graphType[]>([]);
+
   const [totalProject, setTotalProject] = useState<number>(0);
   const [countLead, setCountLead] = useState(0);
   const [pendingProject, setPendingProject] = useState(0);
   const [completedProject, setCompletedProject] = useState(0);
+  const { isShow, setIsShow } = useSonnerStore();
+  const { sonnerDetails, addSonnerDetails } = useSonnerDetailsStore();
+  const { data: session } = useSession();
   const [workingProject, setWorkingProject] = useState(0);
   const [paymentPendingProject, setPaymentPendingProject] = useState(0);
-  const [totalEarning, setTotalEarning] = useState("");
+  const [totalEarning, setTotalEarning] = useState("0");
+  const [totalLeadBill, setTotalLeadBill] = useState("0");
+
+  const [totalRevenue, setTotalRevenue] = useState(0);
+
   const { user, setUser } = useProfileStore();
+  const [projectCountMonth, setProjectMonth] = useState("0");
 
   useEffect(() => {
-    setTotalProject(projects?.length);
-    setPendingProject(
-      projects?.filter(
-        (fil) =>
-          fil.status == "negotiation" ||
-          fil.status == "on-hold" ||
-          fil.status == "pending"
-      )?.length
-    );
-    setWorkingProject(
-      projects?.filter((fil) => fil.status == "progress")?.length
-    );
-    setCountLead(projects?.filter((fil) => fil.status == "lead")?.length);
-    setCompletedProject(
-      projects?.filter((fil) => fil.status == "completed")?.length
-    );
-    setPaymentPendingProject(
-      projects?.filter((fil) => fil.status == "payment pending")?.length
-    );
-    let t = 0;
-    projects
-      ?.filter((pro) => pro.totalBill)
-      .map((a) => {
-        t += a.totalBill;
-      });
-    setTotalEarning(t.toFixed(2));
+    if (projects?.length > 0) {
+      setTotalProject(projects?.length);
+      setPendingProject(
+        projects?.filter(
+          (fil) =>
+            fil.status == "negotiation" ||
+            fil.status == "on-hold" ||
+            fil.status == "pending"
+        )?.length
+      );
+      setWorkingProject(
+        projects?.filter((fil) => fil.status == "progress").length
+      );
+      setCountLead(projects?.filter((fil) => fil.status == "lead").length);
+      setCompletedProject(
+        projects?.filter((fil) => fil.status == "completed").length
+      );
+      setPaymentPendingProject(
+        projects?.filter((fil) => fil.status == "payment pending").length
+      );
+
+      // Calculate earnings
+      const totalBill = projects
+        ?.filter((pro) => pro.totalBill)
+        .reduce((acc, pro) => acc + pro.totalBill, 0);
+
+      setTotalEarning(formatPrice(totalBill));
+
+      const totalBudget = projects?.reduce(
+        (acc, client) => acc + client.bidAmount,
+        0
+      );
+
+      const totalRevenue = totalBill + totalBudget;
+
+      setTotalRevenue(totalRevenue);
+
+      setTotalLeadBill(formatPrice(totalBudget));
+
+      // projectcount by month
+
+      const projectCountByMonth = projects
+        ?.filter(
+          (project) =>
+            new Date(project.createdAt).getMonth() == new Date().getMonth()
+        )
+        .length.toString();
+
+      setProjectMonth(projectCountByMonth);
+    }
   }, [projects]);
 
-  // Fetch projects from server only once on mount
+  // Fetch projects from server
+
+  // Fetch user data
+  const { data: userData, error } = useSWR("/api/user", fetchUser);
+  const { data: project } = useSWR("/api/projects", fetchProjects);
+  
   useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const res = await fetch("/api/projects", {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-        });
-        const data = await res.json();
-        addProjects(data.data);
-      } catch (err) {
-        alert(err);
-      }
-    };
-    fetchProjects();
-  }, [addProjects]);
-  type MonthStats = {
-    name: string;
-    projects: number;
-    revenue: number;
-    completed: number;
-  };
+    if (project) {
+      addProjects(project);
+    } else {
+      console.log(error);
+    }
+  }, [addProjects, project]);
 
   useEffect(() => {
-    const s = projects?.reduce(
-      (prev: Record<string, MonthStats>, initial: projects) => {
-        console.log("previous is", prev);
-        // console.log(initial);
+    if (userData) {
+      setUser(userData);
+    } else {
+      setIsShow(true);
+      addSonnerDetails(error);
+    }
+  }, [userData, setUser]);
 
-        if (!initial.completedMonth) return prev;
-        const month = initial.completedMonth;
-
-        const income = initial.totalBill || 0;
-        if (!prev[month]) {
-          prev[month] = {
-            name: month,
-            projects: projects?.length,
-            revenue: 0,
-            completed: 0,
-          };
-        }
-
-        prev[month].completed++;
-        prev[month].revenue += income;
-
-        return prev;
-      },
-      {}
-    );
-    const arr: graphType[] = Object.values(s || {});
-    setNewArr(arr);
-  }, [projects]);
-
-  useEffect(() => {
-    const fn = async () => {
-      try {
-        const response = await fetch("/api/user", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-        const data = await response.json();
-        if (data) {
-          setUser(data.msg);
-        } else {
-          alert("error");
-        }
-      } catch (error) {
-        alert(error);
-      }
-    };
-
-    fn();
-  }, [addProjects]);
-  // Example stats (replace values with real data when available)
   const stats = [
     {
       id: 1,
-      title: "Total Project",
-      value: totalProject,
-      icon: <Projector size={20} />,
+      title: "Total Projects",
+      value: totalProject || 0,
+      icon: <Projector size={20} className="text-blue-600" />,
+      description: "All time projects",
     },
     {
       id: 2,
-      title: "Project Lead",
-      value: countLead,
-      icon: <Projector size={20} />,
+      title: "Project Leads",
+      value: countLead || 0,
+      icon: <TrendingUp size={20} className="text-green-600" />,
+      description: "Potential projects",
     },
-
     {
       id: 3,
       title: "Completed",
-      value: completedProject,
-      icon: <CheckCircle size={20} />,
+      value: completedProject || 0,
+      icon: <CheckCircle size={20} className="text-green-600" />,
+      description: "Successfully delivered",
     },
-
     {
       id: 4,
       title: "Pending",
-      value: pendingProject,
-      icon: <Clock size={20} />,
+      value: pendingProject || 0,
+      icon: <Clock size={20} className="text-yellow-600" />,
+      description: "Awaiting action",
     },
-
     {
       id: 5,
       title: "Payment Pending",
-      value: paymentPendingProject,
-      icon: <MdPayment size={20} />,
+      value: paymentPendingProject || 0,
+      icon: <MdPayment size={20} className="text-orange-600" />,
+      description: "Awaiting payment",
     },
-
     {
       id: 6,
-      title: "Working",
-      value: workingProject,
-      icon: <Circle size={20} />,
+      title: "In Progress",
+      value: workingProject || 0,
+      icon: <Circle size={20} className="fill-blue-500 text-blue-500" />,
+      description: "Currently working",
     },
-
     {
       id: 7,
-      title: "Profit",
-      value: totalEarning,
-      icon: currencyPref,
+      title: "Hourly Earnings",
+      value: totalEarning || 0,
+      icon: user.userLanguage,
+      description: "Time Based Project",
     },
     {
-      id: 9,
-      title: "Clients",
-      value: user?.clientCount,
-      icon: <Users size={20} />,
+      id: 8,
+      title: "Bid Earning",
+      value: totalLeadBill || 0,
+      icon: user?.userLanguage,
+      description: "Fixed price project",
     },
   ];
-  const { isAnimate } = useStatusStore();
-  const check = [
-    "Starting..",
-    "Creating DashBoard",
-    "managing DashBoard",
-    "wait.....",
+
+  const revenueStats = [
+    {
+      id: 1,
+      title: "Total Revenue",
+      value: formatPrice(totalRevenue),
+      subtitle: "Overall earnings",
+    },
+    {
+      id: 2,
+      title: "New Leads",
+      value: projectCountMonth || 0,
+      subtitle: "This month",
+    },
+    {
+      id: 3,
+      title: "Closed Deals",
+      value: completedProject || 0,
+      subtitle: "Successful conversions",
+    },
   ];
-  const [value, setValue] = useState(check[0]);
-  let i = 0;
-  setInterval(() => {
-    setValue(check[i]);
-    i++;
-  }, 2000);
+
+  const clientStats = [
+    {
+      id: 1,
+      title: "Contracted",
+      value: workingProject || 0,
+      subtitle: "Active contracts",
+    },
+    {
+      id: 2,
+      title: "Proposal",
+      value: pendingProject || 0,
+      subtitle: "Pending proposals",
+    },
+  ];
 
   return (
-    <>
-      {isAnimate && (
-        <div className="absolute w-[100%] flex items-center justify-center overflow-hidden z-50  h-[100vh] bg-black text-white top-0 right-0 left-0 bottom-0 font-semibold text-2xl">
-          {value}
-        </div>
-      )}
-      <div className="p-4 md:p-8 space-y-5 ">
-        {/* Stats Section */}
+    <div onClick={() => setIsShow(false)} className="min-h-screen bg-gray-50">
+      <AnimatePresence>
+        {isShow && (
+          <div className="bg-gray-200 text-xs flex items-center text-black rounded-md border-1 border-gray-200 shadow-md z-100 fixed top-0 gap-2 right-0">
+            <X onClick={() => setIsShow(false)} />
+            <h1 className="font-semibold">{sonnerDetails}</h1>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <div className="p-6 space-y-8">
+        {/* Header */}
         <motion.div
-          className="grid lg:grid-cols-5 md:grid-cols-3 grid-cols-1 gap-6"
-          initial="hidden"
-          animate="visible"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-2"
         >
-          {stats.map((stat, idx) => (
-            <StatCard
+          <h1 className="text-3xl font-bold text-gray-900">
+            Welcome {session?.user.name}
+          </h1>
+          <p className="text-gray-600">
+            Comprehensive overview of your projects and earnings
+          </p>
+        </motion.div>
+
+        {/* Revenue Overview Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {revenueStats.map((stat, idx) => (
+            <RevenueCard
               key={stat.id}
               title={stat.title}
               value={stat.value}
+              subtitle={stat.subtitle}
               delay={idx}
-              icon={stat.icon}
             />
           ))}
-        </motion.div>
-        {/* Chart Section */}
-        <div className="bg-gray-900 rounded-2xl p-6 shadow-lg h-full">
-          <h2 className="text-lg font-semibold text-gray-100 mb-4">
-            Earning Graph
-          </h2>
+        </div>
 
-          {newArr?.length > 0 ? (
-            <ResponsiveContainer width="100%" height={350}>
-              <ComposedChart
-                data={newArr}
-                margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-              >
-                {/* Grid */}
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="#e5e7eb"
-                  opacity={0.5}
-                />
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Stats */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Project Stats */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+            >
+              <h2 className="text-xl font-bold text-gray-900 mb-6">
+                Project Overview
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {stats.map((stat, idx) => (
+                  <StatCard
+                    key={stat.id}
+                    title={stat.title}
+                    value={stat.value}
+                    delay={idx}
+                    icon={stat.icon}
+                    description={stat.description}
+                  />
+                ))}
+              </div>
+            </motion.div>
 
-                {/* Axes */}
-                <XAxis dataKey="name" tick={{ fill: "#6b7280" }} />
-                <YAxis tick={{ fill: "#6b7280" }} />
+            <Chart />
+          </div>
 
-                {/* Tooltip & Legend */}
-                <Tooltip
-                  content={({ active, payload, label }) => {
-                    if (active && payload?.length) {
-                      return (
-                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-                          <p className="font-bold text-gray-900 dark:text-gray-100">
-                            {label}
-                          </p>
-                          {payload.map((entry, idx) => (
-                            <p
-                              key={idx}
-                              className="flex items-center text-sm"
-                              style={{ color: entry.color }}
-                            >
-                              {entry.name}:{" "}
-                              <span className="ml-1 font-medium">
-                                {entry.dataKey === "revenue"
-                                  ? `₹${entry.value}`
-                                  : entry.value}
-                              </span>
-                            </p>
-                          ))}
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Legend />
+          {/* Right Column - Clients & Additional Info */}
+          <div className="space-y-8">
+            {/* Contract Status */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+            >
+              <h2 className="text-xl font-bold text-gray-900 mb-6">
+                Contract Status
+              </h2>
+              <div className="space-y-4">
+                {clientStats.map((stat, idx) => (
+                  <div
+                    key={idx}
+                    className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div>
+                      <h3 className="font-semibold text-gray-900">
+                        {stat.title}
+                      </h3>
+                      <p className="text-sm text-gray-600">{stat.subtitle}</p>
+                    </div>
+                    <span className="text-2xl font-bold text-blue-600">
+                      {stat.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
 
-                {/* Charts */}
-                <Bar
-                  dataKey="projects"
-                  barSize={24}
-                  fill="#3B82F6"
-                  name="Total Projects"
-                  animationDuration={800}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="completed"
-                  stroke="#10B981"
-                  strokeWidth={3}
-                  dot={{ r: 5 }}
-                  name="Completed"
-                  animationDuration={1000}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="#F59E0B"
-                  fill="#FBBF24"
-                  fillOpacity={0.2}
-                  name="Revenue"
-                  animationDuration={1200}
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
-          ) : (
-            <p className="text-gray-500 text-center py-10">
-              No chart data available
-            </p>
-          )}
+            {/* Revenue chart */}
+            <RevenueChart />
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

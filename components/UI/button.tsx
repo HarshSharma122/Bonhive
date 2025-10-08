@@ -9,8 +9,8 @@ interface btnProps {
 
 const Button = ({ className, children, varient = "bgBlank" , onclick}: btnProps) => {
   const variants = {
-    bgFill: "bg-[#0096c7] hover:bg-blue-500 text-white px-3 py-1 rounded-md text-white hover:scale-105 transition duration-300 cursor-pointer",
-    bgBlank: "bg-white text-black border-1 rounded-md px-3 py-1 hover:scale-105  transition duration-300 cursor-pointer",
+    bgFill: "bg-gray-900 hover:bg-gray-800 text-white px-3 py-1 rounded-2xl font-semibold text-base shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-400 cursor-pointer overflow-hidden border border-gray-800",
+    bgBlank: "bg-white text-gray-800 border border-gray-400 hover:border-gray-600 px-7 py-4.5 rounded-2xl font-medium shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-400 cursor-pointer backdrop-blur-sm",
   };
 
   return (

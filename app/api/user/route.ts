@@ -22,7 +22,7 @@ export const POST = async (req: NextRequest) => {
     if (!userLanguage) {
       return NextResponse.json(
         {
-          msg: "Please provide the language where you live in",
+          msg: "something went wrong..",
         },
         {
           status: 404,
@@ -34,8 +34,11 @@ export const POST = async (req: NextRequest) => {
 
     await UserProfile.create({
       userLanguage,
+      userName:user.user.name,
       userId: user.user._id,
     });
+
+    
 
     return NextResponse.json(
       {
@@ -56,6 +59,10 @@ export const POST = async (req: NextRequest) => {
     );
   }
 };
+
+
+
+
 
 export const GET = async () => {
   try {

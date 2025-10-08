@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/options";
 import { razorpay } from "@/utilis/razorpay";
+
 export const POST = async (req: NextRequest) => {
   try {
     const user = await getServerSession(authOptions);
@@ -11,7 +12,7 @@ export const POST = async (req: NextRequest) => {
     if (!user) {
       return NextResponse.json(
         {
-          msg: "You are not authenticated first go for a authentication",
+          errorMsg: "You are not authenticated first go for a authentication",
         },
         {
           status: 404,
@@ -19,7 +20,7 @@ export const POST = async (req: NextRequest) => {
       );
     }
     // we have two type first one is free plan and another one is pro plan so here we just talk about free plan.
-    const { PricePlanType} = await req.json();
+    const { PricePlanType, amount } = await req.json();
     if (!PricePlanType) {
       return NextResponse.json(
         {
@@ -30,25 +31,22 @@ export const POST = async (req: NextRequest) => {
         }
       );
     }
-    if (PricePlanType == "Pro"){
-      const subscrption = await razorpay.subscriptions.create({
-        plan_id: process.env.PLAN_ID!,
-        customer_notify: 1,
-        total_count: 12,
+    if (PricePlanType == "Pro") {
+      const orders = await razorpay.orders.create({
+        amount: amount,
+        currency: "INR",
+        receipt: `receipt_${Date.now()}`,
       });
-      
-      
       return NextResponse.json(
         {
-          id:subscrption.id,
+          id: orders.id,
         },
         {
           status: 200,
         }
       );
     }
-    if (PricePlanType == "Free")
-     {
+    if (PricePlanType == "Free") {
       connectDb();
       await UserProfile.findOneAndUpdate(
         {
@@ -70,9 +68,6 @@ export const POST = async (req: NextRequest) => {
         }
       );
     }
-
-
-
   } catch (error) {
     return NextResponse.json(
       {

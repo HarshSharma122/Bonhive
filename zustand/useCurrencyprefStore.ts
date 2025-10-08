@@ -1,10 +1,8 @@
+import { CurrencyStoreState } from "@/types/bonhive-types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type CurrencyStoreState = {
-  currencyPref: string;
-  addCurrencyPref: (currencyPref: string) => void;
-};
+
 
 export const useCurrencyPrefStore = create<CurrencyStoreState>()(
   persist(

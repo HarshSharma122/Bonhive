@@ -3,7 +3,6 @@ import mongoose, { models, Schema } from "mongoose";
 interface projectType {
   projectName: string;
   clientName: string;
-  clientLanguage: string;
   bidAmount: number;
   desc: string;
   duration: string;
@@ -51,10 +50,6 @@ const projectSchema = new Schema<projectType>(
       required: true,
     },
     clientName: {
-      type: String,
-      required: true,
-    },
-    clientLanguage: {
       type: String,
       required: true,
     },

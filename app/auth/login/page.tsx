@@ -37,10 +37,23 @@ const Page = cache(() => {
       router.push("/auth/register");
     } else {
       router.push("/");
+      console.log(result);
+      
+      localStorage.clear();
     }
     setTimeout(() => {
       setIsRoaming(false);
     }, 2000);
+  };
+
+  const googleSignin = () => {
+    signIn("google", { callbackUrl: "/" });
+    localStorage.clear();
+  };
+
+  const githubSignin = () => {
+    signIn("github", { callbackUrl: "/" });
+    localStorage.clear();
   };
 
   return (
@@ -133,7 +146,7 @@ const Page = cache(() => {
 
         <div className="grid grid-cols-1 gap-3">
           <button
-            onClick={() => signIn("google", { callbackUrl: "/" })}
+            onClick={googleSignin}
             className="flex items-center justify-center gap-3 w-full border border-gray-300 rounded-lg py-3 px-4 hover:bg-gray-50 hover:shadow-sm transition-all"
           >
             <FaGoogle className="text-red-500 text-lg" />
@@ -141,7 +154,7 @@ const Page = cache(() => {
           </button>
 
           <button
-            onClick={() => signIn("github", { callbackUrl: "/" })}
+            onClick={githubSignin}
             className="flex items-center justify-center gap-3 w-full border border-gray-300 rounded-lg py-3 px-4 hover:bg-gray-50 hover:shadow-sm transition-all"
           >
             <FaGithub className="text-gray-800 text-lg" />

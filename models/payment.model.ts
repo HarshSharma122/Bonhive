@@ -1,13 +1,16 @@
 import mongoose, { Date, models, Schema } from "mongoose";
-import bcrypt from "bcryptjs";
 
 type payment = {
   _id: mongoose.Types.ObjectId;
   razorpay_signature?: string;
   razorpay_payment_id?: string;
-  razorpay_subscrption_id: string;
   createdAt: Date;
   updatedAt: Date;
+  razorpay_order_id?: string;
+  amount: number;
+  userId: string;
+  type: string;
+  status: string;
 };
 
 const userSchema = new Schema<payment>(
@@ -18,7 +21,19 @@ const userSchema = new Schema<payment>(
     razorpay_payment_id: {
       type: String,
     },
-    razorpay_subscrption_id: {
+    razorpay_order_id: {
+      type: String,
+    },
+    amount: {
+      type: Number,
+    },
+    userId: {
+      type: String,
+    },
+    type: {
+      type: String,
+    },
+    status: {
       type: String,
     },
   },
@@ -26,7 +41,6 @@ const userSchema = new Schema<payment>(
     timestamps: true,
   }
 );
-
 
 const PAYMENT = models?.PAYMENT || mongoose.model("PAYMENT", userSchema);
 export default PAYMENT;
