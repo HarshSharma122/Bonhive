@@ -1,43 +1,37 @@
 "use client";
-import { useProfileStore} from "@/zustand/userProfileStore";
+import { useProfileStore } from "@/zustand/userProfileStore";
 import { useSonnerStore } from "@/zustand/useSonner";
 import { useSonnerDetailsStore } from "@/zustand/useSonnerDetailsStore";
 import { X } from "lucide-react";
 import { cache, Suspense, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 
-
 import { useSession } from "next-auth/react";
 
-  
-const Front = dynamic(() => import('./component/Front'));
-const Contact = dynamic(() => import('./component/Contact'), {
-  ssr: false,
-});
-const Features = dynamic(() => import('./component/Features'), {
-  ssr: false,
-});
-const Pricing = dynamic(() => import('./component/Pricing'), {
-  ssr: false,
-});
-const Loader = dynamic(() => import('./loader'), {
-  ssr: false,
-});
 
-
-
+const Front = dynamic(() => import("./component/Front"));
+const Contact = dynamic(() => import("./component/Contact"), {
+  ssr: false,
+});
+const Features = dynamic(() => import("./component/Features"), {
+  ssr: false,
+});
+const Pricing = dynamic(() => import("./component/Pricing"), {
+  ssr: false,
+});
+const Loader = dynamic(() => import("./loader"), {
+  ssr: false,
+});
 
 const Page = cache(() => {
   const { isShow, setIsShow } = useSonnerStore();
   const { user, setUser } = useProfileStore();
   const { sonnerDetails, addSonnerDetails } = useSonnerDetailsStore();
   const { data: session } = useSession();
-  const[isRun, setIsRun] = useState<boolean>(false);
+  const [isRun, setIsRun] = useState<boolean>(false);
   const [hasUpdated, setHasUpdated] = useState<boolean>(false);
-
-
-
   
+
   useEffect(() => {
     const fn = async () => {
       try {
@@ -59,13 +53,12 @@ const Page = cache(() => {
         }
       } catch (error) {
         addSonnerDetails("Something went wrong! please try again later");
-        return error
+        return error;
       }
     };
 
     fn();
-  }, []);
-
+  }, [addSonnerDetails, setIsShow, setUser]);
 
   useEffect(() => {
     if (!hasUpdated && !user?.userLanguage && session?.user?._id && isRun) {
@@ -112,6 +105,7 @@ const Page = cache(() => {
         </div>
       )}
       <div className="scroll-smooth">
+       
         <Front />
         <Suspense fallback={<Loader />}>
           <Pricing />

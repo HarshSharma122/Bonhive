@@ -187,25 +187,25 @@ const Page = () => {
   // Fetch projects from server
 
   // Fetch user data
-  const { data: userData, error } = useSWR("/api/user", fetchUser);
-  const { data: project } = useSWR("/api/projects", fetchProjects);
+  const { data: userData, error: userError } = useSWR(
+    session ? "/api/user" : null,
+    fetchUser
+  );
+  const { data: projectData, error: projectError } = useSWR(
+    session ? "/api/projects" : null,
+    fetchProjects
+  );
+  useEffect(() => {
+    if (projectData) addProjects(projectData);
+    else if (projectError) addSonnerDetails("Failed to fetch projects");
+  }, [projectData, projectError, addProjects]);
   
   useEffect(() => {
-    if (project) {
-      addProjects(project);
-    } else {
-      console.log(error);
-    }
-  }, [addProjects, project]);
+    if (userData) setUser(userData);
+    else if (userError) addSonnerDetails("you are not authenticated");
 
-  useEffect(() => {
-    if (userData) {
-      setUser(userData);
-    } else {
-      setIsShow(true);
-      addSonnerDetails(error);
-    }
-  }, [userData, setUser]);
+  }, [userData, setUser, userError]);
+
 
   const stats = [
     {

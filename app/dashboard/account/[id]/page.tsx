@@ -7,9 +7,18 @@ import { useSonnerDetailsStore } from "@/zustand/useSonnerDetailsStore";
 import { motion } from "framer-motion";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import userImg from "../../../../public/user.svg";
-import { Mail, Calendar, Star, LogOut, MessageSquare, Crown } from "lucide-react";
+import dynamic from "next/dynamic";
+
+
+const Mail = dynamic(() => import("lucide-react").then(m => m.Mail), { ssr: false });
+const Calendar = dynamic(() => import("lucide-react").then(m => m.Calendar), { ssr: false });
+const Star = dynamic(() => import("lucide-react").then(m => m.Star), { ssr: false });
+const LogOut = dynamic(() => import("lucide-react").then(m => m.LogOut), { ssr: false });
+const Crown = dynamic(() => import("lucide-react").then(m => m.Crown), { ssr: false });
+const MessageSquare = dynamic(() => import("lucide-react").then(m => m.MessageSquare), { ssr: false });
+
 
 
 const Page = () => {
@@ -28,7 +37,7 @@ const Page = () => {
 
   const currentPlan = user?.bonhivePlan;
 
-  const createdDate = new Date(user.subscrption.createdDate);
+  const createdDate = useMemo(()=>new Date(user?.subscrption?.createdDate), [user?.subscrption?.createdDate])
   const [inputValue, setInputValue] = useState({
     feedBack_type: "",
     feedBack: "",
@@ -331,7 +340,6 @@ const Page = () => {
                 <Star size={20} className="text-green-600" />
               </div>
               <div>
-                <h4 className="font-semibold text-gray-900">Premium Support</h4>
                 <p className="text-gray-600 text-sm">24/7 customer care</p>
               </div>
             </div>

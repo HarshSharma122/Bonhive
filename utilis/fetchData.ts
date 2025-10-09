@@ -1,6 +1,6 @@
-export const fetchUser = async () => {
- try {
-    const response = await fetch("/api/user", {
+export const fetchUser = async (url: string) => {
+  try {
+    const response = await fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -9,7 +9,8 @@ export const fetchUser = async () => {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch user: ${response.status}`);
+      const errMsg = `Failed to fetch user: ${response.status}`;
+      throw new Error(errMsg); // ✅ Throw error for SWR to catch
     }
 
     const data = await response.json();
@@ -20,15 +21,13 @@ export const fetchUser = async () => {
   }
 };
 
-
-
-
-export const fetchProjects = async () => {
- try {
-    const res = await fetch("/api/projects", {
+export const fetchProjects = async (url: string) => {
+  try {
+    const res = await fetch(url, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
+      next: { revalidate: 120 },
     });
 
     if (!res.ok) {
