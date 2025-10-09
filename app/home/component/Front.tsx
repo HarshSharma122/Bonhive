@@ -1,3 +1,6 @@
+export const dynamic = "force-static";
+
+
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import img from "../../../public/bonhive_Dash_first.png";

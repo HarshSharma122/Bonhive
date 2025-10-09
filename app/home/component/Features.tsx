@@ -1,3 +1,5 @@
+export const dynamic = "force-static"
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Feature } from '@/types/bonhive-types';

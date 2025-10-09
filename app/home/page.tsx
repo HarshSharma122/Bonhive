@@ -1,17 +1,16 @@
 "use client";
-import { useProfileStore } from "@/zustand/userProfileStore";
+import { useProfileStore} from "@/zustand/userProfileStore";
 import { useSonnerStore } from "@/zustand/useSonner";
 import { useSonnerDetailsStore } from "@/zustand/useSonnerDetailsStore";
 import { X } from "lucide-react";
 import { cache, Suspense, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+
+
 import { useSession } from "next-auth/react";
-import Front from "./component/Front";
 
-
-
-// for dymanic import of a file
-
+  
+const Front = dynamic(() => import('./component/Front'));
 const Contact = dynamic(() => import('./component/Contact'), {
   ssr: false,
 });
