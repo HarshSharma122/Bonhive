@@ -49,7 +49,6 @@ const Page = cache(() => {
           setIsRun(true);
         } else {
           setIsShow(true);
-          addSonnerDetails(data.msg);
         }
       } catch (error) {
         addSonnerDetails("Something went wrong! please try again later");
