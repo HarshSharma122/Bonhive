@@ -323,7 +323,7 @@ const Page = () => {
             appId: process.env.NEXT_PUBLIC_ONE_SIGNAL_APP_ID!,
             safari_web_id:
               "web.onesignal.auto.21fd847c-14e1-48c8-a072-78170e2e9023",
-            allowLocalhostAsSecureOrigin: true,
+            allowLocalhostAsSecureOrigin: false,
           };
           await OneSignal.init(options);
 
