@@ -254,7 +254,7 @@ const Page = () => {
       id: 7,
       title: "Hourly Earnings",
       value: totalEarning || 0,
-      icon: user.userLanguage,
+      icon: user?.userLanguage,
       description: "Time Based Project",
     },
     {
