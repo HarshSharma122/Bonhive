@@ -4,15 +4,13 @@ import React, { useState } from "react";
 import { useSonnerStore } from "@/zustand/useSonner";
 import { useSonnerDetailsStore } from "@/zustand/useSonnerDetailsStore";
 import { motion } from "framer-motion";
-
-
-
+import contactForm from "@/utilis/action";
 
 const Contact = () => {
   const { addSonnerDetails } = useSonnerDetailsStore();
   const [isRoaming, setIsRoaming] = useState<boolean>(false);
   const { setIsShow } = useSonnerStore();
-  
+
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
@@ -33,38 +31,13 @@ const Contact = () => {
     try {
       e.preventDefault();
       setIsRoaming(true);
-      
-      const response = await fetch("/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          full_name: formData.full_name,
-          email: formData.email,
-          subject: formData.subject,
-          message: formData.message,
-        }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        addSonnerDetails(data.msg);
-        setIsShow(true);
-        setFormData({
-          full_name: "",
-          email: "",
-          subject: "",
-          message: "",
-        });
-        setTimeout(() => {
-          setIsRoaming(false);
-          setIsShow(false);
-        }, 3000);
-      }
+      await contactForm(formData);
+      addSonnerDetails("Message sent successfully!");
+      setFormData({ full_name: "", email: "", subject: "", message: "" });
     } catch (error) {
       addSonnerDetails("Something went wrong!");
-      console.log(error);
+      return error
+    } finally {
       setIsRoaming(false);
     }
   };
@@ -99,7 +72,8 @@ const Contact = () => {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto"
           >
-            Have questions or want to work together? We had love to hear from you.
+            Have questions or want to work together? We had love to hear from
+            you.
           </motion.p>
         </motion.div>
 
@@ -190,13 +164,19 @@ const Contact = () => {
                 </h4>
                 <ul className="space-y-3 text-gray-300">
                   <li className="flex items-center">
-                    <svg className="w-4 h-4 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    <svg
+                      className="w-4 h-4 text-green-400 mr-2"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     24-48 hour response time
                   </li>
-                
-                  
                 </ul>
               </div>
             </motion.div>
@@ -309,8 +289,18 @@ const Contact = () => {
                     ) : (
                       <div className="flex items-center justify-center">
                         Send Message
-                        <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                        <svg
+                          className="w-5 h-5 ml-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                          />
                         </svg>
                       </div>
                     )}
@@ -343,7 +333,11 @@ const Contact = () => {
               href="mailto:harsh444577@gmail.com"
               className="bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-medium shadow-sm hover:shadow-md transition-all duration-300 flex items-center"
             >
-              <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
                 <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                 <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
               </svg>

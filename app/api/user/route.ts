@@ -78,13 +78,11 @@ export const GET = async () => {
         }
       );
     }
-
     connectDb();
-
     const userProfile = await UserProfile.findOne({
       userId: user.user._id,
     }).select(
-      "-_id -userId -invoices -updatedAt -createdAt -__v  -projectCount"
+      "-_id -userId -invoices -updatedAt -createdAt -__v  -projectCount -user_feedback"
     );
 
     if (userProfile?.subscrption) {

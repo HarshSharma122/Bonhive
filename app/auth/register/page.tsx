@@ -5,10 +5,10 @@ import { motion } from "framer-motion";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { cache, useState } from "react";
+import React, { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa6";
-const Page = cache(() => {
+const Page = (() => {
   const router = useRouter();
   const [isRoaming, setIsRoaming] = useState(false);
   const [msg, setMsg] = useState("");

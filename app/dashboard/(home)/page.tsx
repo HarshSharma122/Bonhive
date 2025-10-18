@@ -1,4 +1,5 @@
 "use client";
+import OneSignal, { IInitObject } from "react-onesignal";
 
 const Chart = dynamic(() => import("@/utilis/projectChart"), {
   ssr: false,
@@ -109,11 +110,18 @@ const RevenueCard = ({
   </motion.div>
 );
 
+declare global {
+  interface Window {
+    OneSignalInitialized?: boolean;
+  }
+}
+
 // Custom Tooltip for charts
 
 const Page = () => {
   const { projects, addProjects } = useProjectStore();
-
+  const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [totalProject, setTotalProject] = useState<number>(0);
   const [countLead, setCountLead] = useState(0);
   const [pendingProject, setPendingProject] = useState(0);
@@ -187,25 +195,25 @@ const Page = () => {
   // Fetch projects from server
 
   // Fetch user data
-  const { data: userData, error: userError } = useSWR(
-    session ? "/api/user" : null,
-    fetchUser
-  );
   const { data: projectData, error: projectError } = useSWR(
     session ? "/api/projects" : null,
     fetchProjects
   );
-  useEffect(() => {
-    if (projectData) addProjects(projectData);
-    else if (projectError) addSonnerDetails("Failed to fetch projects");
-  }, [projectData, projectError, addProjects]);
-  
+
+  const { data: userData, error: userError } = useSWR(
+    session ? "/api/user" : null,
+    fetchUser
+  );
+
   useEffect(() => {
     if (userData) setUser(userData);
     else if (userError) addSonnerDetails("you are not authenticated");
-
   }, [userData, setUser, userError]);
 
+  useEffect(() => {
+    if (projectData) addProjects(projectData);
+    else if (projectError) addSonnerDetails("you are not authenticated");
+  }, [projectData, addProjects, projectError]);
 
   const stats = [
     {
@@ -254,7 +262,7 @@ const Page = () => {
       id: 7,
       title: "Hourly Earnings",
       value: totalEarning || 0,
-      icon: user.userLanguage,
+      icon: user?.userLanguage,
       description: "Time Based Project",
     },
     {
@@ -301,6 +309,50 @@ const Page = () => {
       subtitle: "Pending proposals",
     },
   ];
+  setTimeout(() => {
+    setIsShow(false);
+  }, 2000);
+
+  useEffect(() => {
+    if (!user.oneSignal_id) {
+      const initOneSignal = async () => {
+        if (window.OneSignalInitialized) return;
+
+        try {
+          const options = {
+            appId: process.env.NEXT_PUBLIC_ONE_SIGNAL_APP_ID!,
+            safari_web_id:
+              "web.onesignal.auto.21fd847c-14e1-48c8-a072-78170e2e9023",
+            allowLocalhostAsSecureOrigin: true,
+          };
+          await OneSignal.init(options);
+
+          window.OneSignalInitialized = true;
+          console.log("✅ OneSignal initialized successfully");
+
+          const id = OneSignal.User.PushSubscription.id;
+
+          console.log("OneSignal user ID:", id);
+
+          if (id) {
+            const response = await fetch("/api/saveOneSignalId", {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ oneSignalId: id }),
+            });
+
+            if (!response.ok) throw new Error("Failed to save OneSignal ID");
+            console.log("✅ OneSignal ID saved to backend");
+          }
+        } catch (err) {
+          console.error("❌ OneSignal init failed:", err);
+        }
+      };
+
+      void initOneSignal(); // prevent unhandled promise warning
+    }
+  }, [user.oneSignal_id]);
 
   return (
     <div onClick={() => setIsShow(false)} className="min-h-screen bg-gray-50">
@@ -318,14 +370,16 @@ const Page = () => {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-2"
+          className="space-y-2 flex items-center justify-between"
         >
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome {session?.user.name}
-          </h1>
-          <p className="text-gray-600">
-            Comprehensive overview of your projects and earnings
-          </p>
+          <div className="">
+            <h1 className="text-3xl font-bold text-gray-900">
+              Welcome {session?.user.name}
+            </h1>
+            <p className="text-gray-600">
+              Comprehensive overview of your projects and earnings
+            </p>
+          </div>
         </motion.div>
 
         {/* Revenue Overview Section */}

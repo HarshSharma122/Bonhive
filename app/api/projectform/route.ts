@@ -58,6 +58,7 @@ export const POST = async (request: NextRequest) => {
         email,
         contact,
         location,
+        isNotified: false,
         notes,
         leadSource,
         desc,
@@ -97,12 +98,11 @@ export const POST = async (request: NextRequest) => {
 
       const getMonth = date.toLocaleString("en-us", { month: "long" });
       const getYear = date.toLocaleString("en-us", { year: "numeric" });
-      const getDay = date.toLocaleString("en-us", { day: "numeric" });
 
       await CALENDAR.create({
         userID: session.user._id,
         userName: session.user.name,
-        date: getDay,
+        date: getDate,
         month: getMonth,
         year: getYear,
         time: date.toLocaleTimeString(),
@@ -129,6 +129,7 @@ export const POST = async (request: NextRequest) => {
         notes,
         leadSource,
         desc,
+        isNotified: false,
         proposal,
         userName: session.user.name,
         IshourBillable,
@@ -165,12 +166,11 @@ export const POST = async (request: NextRequest) => {
 
       const getMonth = date.toLocaleString("en-us", { month: "long" });
       const getYear = date.toLocaleString("en-us", { year: "numeric" });
-      const getDay = date.toLocaleString("en-us", { day: "numeric" });
 
       await CALENDAR.create({
         userID: session.user._id,
         userName: session.user.name,
-        date: getDay,
+        date: getDate,
         month: getMonth,
         year: getYear,
         time: date.toLocaleTimeString(),

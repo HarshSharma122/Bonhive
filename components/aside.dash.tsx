@@ -1,7 +1,7 @@
 "use client";
 
 import { useSonnerStore } from "@/zustand/useSonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Calendar,
   ChevronRight,
@@ -15,7 +15,7 @@ import {
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { cache, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CgAdd } from "react-icons/cg";
 import { HiHome } from "react-icons/hi2";
 import { MdDashboardCustomize } from "react-icons/md";
@@ -55,7 +55,7 @@ const navItems = [
   },
 ];
 
-const AsideDash = cache(() => {
+const AsideDash = (() => {
   const [username, setusername] = useState<string | null | undefined>("");
   const { data: session, status } = useSession();
   const [isNavigating, setIsNavigating] = useState(false);

@@ -5,6 +5,7 @@ interface projectType {
   clientName: string;
   bidAmount: number;
   desc: string;
+  isNotified:boolean;
   duration: string;
   _id: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -155,6 +156,11 @@ const projectSchema = new Schema<projectType>(
         rate: Number,
       },
     ],
+    isNotified:{
+      type:Boolean,
+      required:true,
+      default:false,
+    }
   },
   {
     timestamps: true,

@@ -1,4 +1,6 @@
-export const fetchUser = async (url: string) => {
+import { cache } from "react";
+
+export const fetchUser = cache(async (url: string) => {
   try {
     const response = await fetch(url, {
       method: "GET",
@@ -19,9 +21,9 @@ export const fetchUser = async (url: string) => {
     console.error("Error fetching user:", err);
     throw err; // important to throw so SWR or callers know an error occurred
   }
-};
+});
 
-export const fetchProjects = async (url: string) => {
+export const fetchProjects =cache( async (url: string) => {
   try {
     const res = await fetch(url, {
       method: "GET",
@@ -40,4 +42,10 @@ export const fetchProjects = async (url: string) => {
     console.error("Error fetching projects:", error);
     throw error; // throw again for SWR or hooks to catch
   }
-};
+});
+
+
+
+
+
+

@@ -14,31 +14,21 @@ export const POST = async (request: NextRequest) => {
     connectDb();
 
     const checkExistingUser = await USER.findOne({ email: email });
-
-
-
     if (checkExistingUser) {
       return NextResponse.json(
         { message: "user is already exist with this " },
         { status: 200 }
       );
     }
-
-
-
     await USER.create({
       username,
       email,
       password,
     });
-
     return NextResponse.json(
       { message: "Your account is successfully created" },
       { status: 200 }
     );
-
-
-
   } catch (error) {
     return NextResponse.json(
       { message: "Something went wrong! please check at ones",error},

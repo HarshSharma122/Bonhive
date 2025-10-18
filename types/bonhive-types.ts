@@ -303,6 +303,7 @@ export type user = {
   subscrption: {
     createdDate: string;
   };
+  oneSignal_id?:string;
 };
 
 export type ProfileStoreState = {

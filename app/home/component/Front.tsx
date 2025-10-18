@@ -54,7 +54,7 @@ const Front = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-16 bg-gradient-to-br from-blue-50 via-white to-indigo-50 relative overflow-hidden">
+    <div id="home" className="min-h-screen flex items-center justify-center px-4 py-16 bg-gradient-to-br from-blue-50 via-white to-indigo-50 relative overflow-hidden">
       {/* Enhanced Gradient Background Elements */}
       <div className="absolute top-10 left-5 md:top-20 md:left-10 w-72 h-72 md:w-96 md:h-96 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-gentle-float"></div>
       <div className="absolute bottom-10 right-5 md:bottom-20 md:right-10 w-72 h-72 md:w-96 md:h-96 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-gentle-float-delayed"></div>

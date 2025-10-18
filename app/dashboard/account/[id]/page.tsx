@@ -9,16 +9,7 @@ import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import React, { useMemo, useState } from "react";
 import userImg from "../../../../public/user.svg";
-import dynamic from "next/dynamic";
-
-
-const Mail = dynamic(() => import("lucide-react").then(m => m.Mail), { ssr: false });
-const Calendar = dynamic(() => import("lucide-react").then(m => m.Calendar), { ssr: false });
-const Star = dynamic(() => import("lucide-react").then(m => m.Star), { ssr: false });
-const LogOut = dynamic(() => import("lucide-react").then(m => m.LogOut), { ssr: false });
-const Crown = dynamic(() => import("lucide-react").then(m => m.Crown), { ssr: false });
-const MessageSquare = dynamic(() => import("lucide-react").then(m => m.MessageSquare), { ssr: false });
-
+import { Mail, Calendar, Star, LogOut, MessageSquare, Crown } from "lucide-react";
 
 
 const Page = () => {
@@ -27,6 +18,8 @@ const Page = () => {
   const [isRoaming, setIsRoaming] = useState(false);
   const { setIsShow } = useSonnerStore();
   const { user } = useProfileStore();
+  console.log(user);
+  
 
   const feedbackOptions = [
     "Improvement related feedback",
@@ -37,7 +30,7 @@ const Page = () => {
 
   const currentPlan = user?.bonhivePlan;
 
-  const createdDate = useMemo(()=>new Date(user?.subscrption?.createdDate), [user?.subscrption?.createdDate])
+  const createdDate = useMemo(()=>new Date(user?.subscrption?.createdDate), [user?.subscrption.createdDate])
   const [inputValue, setInputValue] = useState({
     feedBack_type: "",
     feedBack: "",

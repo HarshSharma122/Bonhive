@@ -1,13 +1,12 @@
 "use client";
 import { useProfileStore } from "@/zustand/userProfileStore";
 import { useSonnerStore } from "@/zustand/useSonner";
+
 import { useSonnerDetailsStore } from "@/zustand/useSonnerDetailsStore";
 import { X } from "lucide-react";
-import { cache, Suspense, useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-
 import { useSession } from "next-auth/react";
-
+import dynamic from "next/dynamic";
+import { Suspense, useEffect, useState } from "react";
 
 const Front = dynamic(() => import("./component/Front"));
 const Contact = dynamic(() => import("./component/Contact"), {
@@ -23,14 +22,13 @@ const Loader = dynamic(() => import("./loader"), {
   ssr: false,
 });
 
-const Page = cache(() => {
+const Page = () => {
   const { isShow, setIsShow } = useSonnerStore();
   const { user, setUser } = useProfileStore();
   const { sonnerDetails, addSonnerDetails } = useSonnerDetailsStore();
   const { data: session } = useSession();
   const [isRun, setIsRun] = useState<boolean>(false);
   const [hasUpdated, setHasUpdated] = useState<boolean>(false);
-  
 
   useEffect(() => {
     const fn = async () => {
@@ -49,7 +47,6 @@ const Page = cache(() => {
           setIsRun(true);
         } else {
           setIsShow(true);
-          addSonnerDetails(data.msg);
         }
       } catch (error) {
         addSonnerDetails("Something went wrong! please try again later");
@@ -96,6 +93,7 @@ const Page = cache(() => {
     }
   }, [user?.userLanguage, session?.user?._id, hasUpdated, isRun]);
 
+
   return (
     <>
       {isShow && (
@@ -104,8 +102,8 @@ const Page = cache(() => {
           <h1 className="font-semibold">{sonnerDetails}</h1>
         </div>
       )}
+
       <div className="scroll-smooth">
-       
         <Front />
         <Suspense fallback={<Loader />}>
           <Pricing />
@@ -115,6 +113,6 @@ const Page = cache(() => {
       </div>
     </>
   );
-});
+};
 
 export default Page;
