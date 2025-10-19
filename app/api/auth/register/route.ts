@@ -25,21 +25,21 @@ export const POST = async (request: NextRequest) => {
       password,
     });
 
-//     await plunk.emails.send({
-//       to: email,
-//       subject: "Welcome to Bonhive! 🎉",
-//       body: `
-//             <h1>Welcome, ${username}</h1>
-//             <p>Welcome to Bonhive! 🎉We’re excited to help you manage your projects, clients, and deadlines all in one place. Here’s a quick tip to get started:<p>
-//             <p>1.Add your first project</p>
-//             <p>2.Download the invoice</p>
-//             <p>3. Track progress effortlessly</p>
+    await plunk.emails.send({
+      to: email,
+      subject: "Welcome to Bonhive! 🎉",
+      body: `
+            <h1>Welcome, ${username}</h1>
+            <p>Welcome to Bonhive! 🎉We’re excited to help you manage your projects, clients, and deadlines all in one place. Here’s a quick tip to get started:<p>
+            <p>1.Add your first project</p>
+            <p>2.Download the invoice</p>
+            <p>3. Track progress effortlessly</p>
         
-//             <p>Need help? Our support team is here for you anytime.
-//  Happy freelancing,
-// The Bonhive Team</p>
-//           `,
-//     });
+            <p>Need help? Our support team is here for you anytime.
+ Happy freelancing,
+The Bonhive Team</p>
+          `,
+    });
 
     return NextResponse.json(
       { message: "Your account is successfully created" },
