@@ -69,6 +69,7 @@ const userProfileSchema = new Schema<user>(
     },
     oneSignal_id:{
       type:String,
+      default:"0"
     }
   },
   {
