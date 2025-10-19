@@ -14,7 +14,7 @@ export const useProfileStore = create<ProfileStoreState>()(
         subscrption: {
           createdDate: "",
         },
-        oneSignal_id:"0",
+        oneSignal_id:"",
         
       },
       setUser: (user) => set({ user }),

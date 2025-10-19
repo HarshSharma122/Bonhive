@@ -120,8 +120,6 @@ declare global {
 
 const Page = () => {
   const { projects, addProjects } = useProjectStore();
-  const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [totalProject, setTotalProject] = useState<number>(0);
   const [countLead, setCountLead] = useState(0);
   const [pendingProject, setPendingProject] = useState(0);

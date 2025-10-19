@@ -46,7 +46,6 @@ const AsideDash = cache(() => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
 
-      console.log(mobile);
       
       if (!mobile) setIsShow(true); // always show on desktop
     };
