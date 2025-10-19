@@ -39,7 +39,7 @@ export const POST = async (req: NextRequest) => {
     });
 
     await plunk.emails.send({
-      to: user?.user.email!,
+      to: user.user.email!,
       subject: "Welcome to Bonhive! 🎉",
       body: `
                 <h1>Welcome, ${user.user.name}</h1>
