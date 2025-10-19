@@ -67,7 +67,7 @@ export const authOptions: NextAuthOptions = {
   ],
 
   events: {
-   signIn: async ({ user }) => {
+  createUser: async ({ user }) => {
       try {
         await fetch("https://api.useplunk.com/v1/track", {
           method: "POST",
