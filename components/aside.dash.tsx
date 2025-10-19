@@ -1,14 +1,15 @@
 "use client";
 
-import { useSonnerStore } from "@/zustand/useSonner";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Calendar,
   ChevronRight,
   CircleUser,
   Clock,
   LayoutDashboard,
+  Menu,
   UserCog,
+  X,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -17,7 +18,6 @@ import { cache, useEffect, useState } from "react";
 import { CgAdd } from "react-icons/cg";
 import { HiHome } from "react-icons/hi2";
 import { MdDashboardCustomize } from "react-icons/md";
-import { Menu, X } from "lucide-react";
 import Roaming from "./Roaming";
 
 const navItems = [
@@ -35,7 +35,7 @@ const AsideDash = cache(() => {
   const { data: session, status } = useSession();
   const [isNavigating, setIsNavigating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const { isShow, setIsShow } = useSonnerStore();
+  const [ isShow, setIsShow ] = useState<boolean>(false);
   const router = useRouter();
   const [isRoaming, setIsRoaming] = useState<boolean>(false);
   const [activeLink, setActiveLink] = useState<number>(0);
@@ -45,6 +45,9 @@ const AsideDash = cache(() => {
     const checkScreenSize = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
+
+      console.log(mobile);
+      
       if (!mobile) setIsShow(true); // always show on desktop
     };
 
