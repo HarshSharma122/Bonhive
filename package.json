@@ -13,6 +13,7 @@
     "@cashfreepayments/cashfree-js": "^1.0.5",
     "@next/bundle-analyzer": "^15.5.4",
     "@onesignal/node-onesignal": "^5.3.1-beta1",
+    "@plunk/node": "^3.0.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/mongoose": "^5.11.96",
     "@types/react-big-calendar": "^1.16.3",

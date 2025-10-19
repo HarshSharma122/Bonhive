@@ -12,19 +12,26 @@ export const authOptions: NextAuthOptions = {
       id: "credentials",
       name: "credentials",
       credentials: {
-        username: { label: "username", type: "text"},
+        username: { label: "username", type: "text" },
         email: { label: "email", type: "email" },
         password: { label: "password", type: "password" },
       },
 
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.email || !credentials?.password) {
+        if (
+          !credentials?.username ||
+          !credentials?.email ||
+          !credentials?.password
+        ) {
           throw new Error("Please provide username, email and password");
         }
 
         try {
           await connectDb();
-          const user = await USER.findOne({ email: credentials.email, username:credentials.username});
+          const user = await USER.findOne({
+            email: credentials.email,
+            username: credentials.username,
+          });
 
           if (!user) {
             throw new Error("No user found!");
@@ -40,7 +47,7 @@ export const authOptions: NextAuthOptions = {
           return {
             id: user._id.toString(),
             email: user.email,
-            name:user.username,
+            name: user.username,
           };
         } catch (error) {
           console.error("Auth error: ", error);
@@ -58,6 +65,40 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GITHUB_SECRET!,
     }),
   ],
+
+  events: {
+    createUser: async ({ user }) => {
+      try {
+        await fetch("https://api.useplunk.com/v1/track", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.PLUNK_API_KEY}`,
+          },
+          body: JSON.stringify({
+            event: "welcome_email",
+            email: user.email,
+            data: {
+              name: user.name,
+              message: `
+            <h1>Welcome, ${user.name}</h1>
+            <p>Welcome to Bonhive! 🎉We’re excited to help you manage your projects, clients, and deadlines all in one place. Here’s a quick tip to get started:<p>
+            <p>1.Add your first project</p>
+            <p>2.Download the invoice</p>
+            <p>3. Track progress effortlessly</p>
+        
+            <p>Need help? Our support team is here for you anytime.
+ Happy freelancing,
+The Bonhive Team</p>
+          `,
+            },
+          }),
+        });
+      } catch (err) {
+        console.error("Plunk error:", err);
+      }
+    },
+  },
 
   callbacks: {
     async jwt({ token, user }) {
