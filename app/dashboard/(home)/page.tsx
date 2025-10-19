@@ -314,7 +314,7 @@ const Page = () => {
   }, 2000);
 
   useEffect(() => {
-    if (!user.oneSignal_id) {
+    if (!user?.oneSignal_id) {
       const initOneSignal = async () => {
         if (window.OneSignalInitialized) return;
 
@@ -352,7 +352,7 @@ const Page = () => {
 
       void initOneSignal(); // prevent unhandled promise warning
     }
-  }, [user.oneSignal_id]);
+  }, [user?.oneSignal_id]);
 
   return (
     <div onClick={() => setIsShow(false)} className="min-h-screen bg-gray-50">

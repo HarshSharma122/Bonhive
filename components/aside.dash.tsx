@@ -8,9 +8,7 @@ import {
   CircleUser,
   Clock,
   LayoutDashboard,
-  Menu,
   UserCog,
-  X
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -19,73 +17,48 @@ import { cache, useEffect, useState } from "react";
 import { CgAdd } from "react-icons/cg";
 import { HiHome } from "react-icons/hi2";
 import { MdDashboardCustomize } from "react-icons/md";
+import { Menu, X } from "lucide-react";
 import Roaming from "./Roaming";
 
 const navItems = [
   { icon: <HiHome size={18} />, label: "Home", path: "/home" },
-  {
-    icon: <MdDashboardCustomize size={18} />,
-    label: "DashBoard",
-    path: "/dashboard",
-  },
-  {
-    icon: <LayoutDashboard size={18} />,
-    label: "Projects",
-    path: "/dashboard/projects",
-  },
-  {
-    icon: <CgAdd size={18} />,
-    label: "Add leads",
-    path: "/dashboard/addLeads",
-  },
-  {
-    icon: <Calendar size={18} />,
-    label: "Calendar",
-    path: "/dashboard/calender",
-  },
-  {
-    icon: <Clock size={18} />,
-    label: "Task Management",
-    path: "/dashboard/task-management",
-  },
-  {
-    icon: <UserCog size={18} />,
-    label: "Client Management",
-    path: "/dashboard/client-management",
-  },
+  { icon: <MdDashboardCustomize size={18} />, label: "DashBoard", path: "/dashboard" },
+  { icon: <LayoutDashboard size={18} />, label: "Projects", path: "/dashboard/projects" },
+  { icon: <CgAdd size={18} />, label: "Add leads", path: "/dashboard/addLeads" },
+  { icon: <Calendar size={18} />, label: "Calendar", path: "/dashboard/calender" },
+  { icon: <Clock size={18} />, label: "Task Management", path: "/dashboard/task-management" },
+  { icon: <UserCog size={18} />, label: "Client Management", path: "/dashboard/client-management" },
 ];
 
 const AsideDash = cache(() => {
-  const [username, setusername] = useState<string | null | undefined>("");
+  const [username, setUsername] = useState<string | null | undefined>("");
   const { data: session, status } = useSession();
   const [isNavigating, setIsNavigating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-
   const { isShow, setIsShow } = useSonnerStore();
+  const router = useRouter();
+  const [isRoaming, setIsRoaming] = useState<boolean>(false);
+  const [activeLink, setActiveLink] = useState<number>(0);
 
   // Detect screen size
   useEffect(() => {
     const checkScreenSize = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
-      if (!mobile) {
-        setIsShow(true); // Always show on desktop
-      }
+      if (!mobile) setIsShow(true); // always show on desktop
     };
 
     checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, [setIsShow]);
 
+  // Set username when authenticated
   useEffect(() => {
-    if (status == "authenticated") {
-      setusername(session?.user.name);
-    }
+    if (status === "authenticated") setUsername(session?.user.name);
   }, [session, status]);
 
-  const router = useRouter();
-
+  // Navigate to account
   const accountNavigate = () => {
     setIsNavigating(true);
     setIsShow(false);
@@ -98,13 +71,12 @@ const AsideDash = cache(() => {
     }, 2000);
   };
 
+  // Prefetch account
   const prefetchAccount = () => {
     router.prefetch(`/dashboard/account/${session?.user?.name || ""}`);
   };
 
-  const [isRoaming, setIsRoaming] = useState<boolean>(false);
-  const [activeLink, setActiveLink] = useState<number>(1);
-
+  // Start roaming on link click
   const startRoaming = (index: number) => {
     setIsRoaming(true);
     setIsShow(false);
@@ -115,7 +87,7 @@ const AsideDash = cache(() => {
     }, 3000);
   };
 
-  // Backdrop component for mobile
+  // Backdrop for mobile
   const Backdrop = () => (
     <AnimatePresence>
       {isShow && isMobile && (
@@ -123,7 +95,7 @@ const AsideDash = cache(() => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-white blur-2xl bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-white/50 backdrop-blur-md z-40 lg:hidden"
           onClick={() => setIsShow(false)}
         />
       )}
@@ -133,9 +105,9 @@ const AsideDash = cache(() => {
   return (
     <>
       {isRoaming && <Roaming />}
-      
+
       {/* Mobile Menu Button */}
-      <div className="lg:hidden block">
+      {isMobile && (
         <button
           onClick={() => setIsShow(true)}
           className="fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200"
@@ -143,7 +115,7 @@ const AsideDash = cache(() => {
         >
           <Menu className="w-6 h-6 text-black" />
         </button>
-      </div>
+      )}
 
       <Backdrop />
 
@@ -151,30 +123,15 @@ const AsideDash = cache(() => {
       <AnimatePresence>
         {(isShow || !isMobile) && (
           <motion.div
-            initial={{ 
-              x: isMobile ? -300 : -20, 
-              opacity: isMobile ? 0 : 0 
-            }}
-            animate={{ 
-              x: 0, 
-              opacity: 1 
-            }}
-            exit={{ 
-              x: isMobile ? -300 : -20, 
-              opacity: isMobile ? 0 : 0 
-            }}
+            key="aside-mobile"
+            initial={{ x: isMobile ? -300 : 0, opacity: isMobile ? 0 : 1 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: isMobile ? -300 : 0, opacity: isMobile ? 0 : 1 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
             className={`
-              fixed lg:static z-50 p-4 lg:p-4 
-              h-screen lg:h-[calc(100vh-2rem)] 
-              bg-white text-black 
-              w-80 lg:w-64 
-              border-r border-gray-200 
-              shadow-xl lg:shadow-lg 
-              rounded-r-2xl lg:rounded-lg
-              flex flex-col
-              top-0 left-0
-              ${isShow ? "flex" : "lg:flex hidden"}
+              fixed lg:static top-0 left-0 z-50 h-screen lg:h-[calc(100vh-2rem)]
+              w-80 lg:w-64 bg-white text-black border-r border-gray-200 shadow-xl lg:shadow-lg
+              rounded-r-2xl lg:rounded-lg flex flex-col p-4
             `}
           >
             {/* Mobile Close Button */}
@@ -233,15 +190,16 @@ const AsideDash = cache(() => {
                         }
                       `}
                     >
-                      <span className={`${activeLink === index ? "text-white" : "text-gray-600"}`}>
+                      <span className={activeLink === index ? "text-white" : "text-gray-600"}>
                         {item.icon}
                       </span>
                       <span className="flex-1">{item.label}</span>
                       <ChevronRight
-                        className={`
-                          transition-all duration-200 
-                          ${activeLink === index ? 'text-white opacity-100' : 'text-gray-400 opacity-0 group-hover:opacity-100'}
-                        `}
+                        className={`transition-all duration-200 ${
+                          activeLink === index
+                            ? "text-white opacity-100"
+                            : "text-gray-400 opacity-0 group-hover:opacity-100"
+                        }`}
                         size={16}
                       />
                     </Link>
