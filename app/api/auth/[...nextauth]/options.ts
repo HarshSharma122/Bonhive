@@ -76,7 +76,7 @@ export const authOptions: NextAuthOptions = {
             Authorization: `Bearer ${process.env.PLUNK_API_KEY}`,
           },
           body: JSON.stringify({
-            event: "welcome_email",
+            event: "new_project",
             email: user.email,
             data: {
               name: user.name,
