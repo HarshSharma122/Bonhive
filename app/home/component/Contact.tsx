@@ -118,7 +118,7 @@ const Contact = () => {
                   <div className="ml-4">
                     <p className="text-lg font-medium text-white">Email</p>
                     <p className="text-gray-300 group-hover:text-white transition-colors duration-300">
-                      harsh444577@gmail.com
+                      bonhive.site@gmail.com
                     </p>
                   </div>
                 </div>
