@@ -1,5 +1,4 @@
 "use client";
-import OneSignal, { IInitObject } from "react-onesignal";
 
 const Chart = dynamic(() => import("@/utilis/projectChart"), {
   ssr: false,
@@ -28,7 +27,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { MdPayment } from "react-icons/md";
 import useSWR from "swr";
 // ------------------ Reusable Stat Card ------------------
@@ -110,13 +109,7 @@ const RevenueCard = ({
   </motion.div>
 );
 
-declare global {
-  interface Window {
-    OneSignalInitialized?: boolean;
-  }
-}
 
-// Custom Tooltip for charts
 
 const Page = () => {
   const { projects, addProjects } = useProjectStore();
@@ -311,46 +304,6 @@ const Page = () => {
     setIsShow(false);
   }, 2000);
 
-  useEffect(() => {
-    if (!user?.oneSignal_id) {
-      const initOneSignal = async () => {
-        if (window.OneSignalInitialized) return;
-
-        try {
-          const options = {
-            appId: process.env.NEXT_PUBLIC_ONE_SIGNAL_APP_ID!,
-            safari_web_id:
-              "web.onesignal.auto.21fd847c-14e1-48c8-a072-78170e2e9023",
-            allowLocalhostAsSecureOrigin: false,
-          };
-          await OneSignal.init(options);
-
-          window.OneSignalInitialized = true;
-          console.log("✅ OneSignal initialized successfully");
-
-          const id = OneSignal.User.PushSubscription.id;
-
-          console.log("OneSignal user ID:", id);
-
-          if (id) {
-            const response = await fetch("/api/saveOneSignalId", {
-              method: "POST",
-              credentials: "include",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ oneSignalId: id }),
-            });
-
-            if (!response.ok) throw new Error("Failed to save OneSignal ID");
-            console.log("✅ OneSignal ID saved to backend");
-          }
-        } catch (err) {
-          console.error("❌ OneSignal init failed:", err);
-        }
-      };
-
-      void initOneSignal(); // prevent unhandled promise warning
-    }
-  }, [user?.oneSignal_id]);
 
   return (
     <div onClick={() => setIsShow(false)} className="min-h-screen bg-gray-50">

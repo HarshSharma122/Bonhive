@@ -28,7 +28,6 @@ type user = {
     feedBack: string;
   };
   clientCount: number;
-  oneSignal_id:string;
 };
 
 const userProfileSchema = new Schema<user>(
@@ -67,10 +66,6 @@ const userProfileSchema = new Schema<user>(
       feedBack_type: String,
       feedBack: String,
     },
-    oneSignal_id:{
-      type:String,
-      default:"0"
-    }
   },
   {
     timestamps: true,
