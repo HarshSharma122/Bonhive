@@ -1,23 +1,30 @@
 import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGODB_URI!;
-const options = {};
+const uri: string = process.env.MONGODB_URI!;
+const options: Record<string, unknown> = {};
 
-let client;
-let clientPromise: Promise<MongoClient>;
-
-if (!process.env.MONGODB_URI) {
+if (!uri) {
   throw new Error("Please add your MongoDB URI to .env");
 }
 
+// Extend the global type to include our cached MongoClientPromise
+declare global {
+  // eslint-disable-next-line no-var
+  var _mongoClientPromise: Promise<MongoClient> | undefined;
+}
+
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
+
 if (process.env.NODE_ENV === "development") {
-  // Reuse connection in dev to avoid too many connections
-  if (!(global as any)._mongoClientPromise) {
+  // Reuse the client in development to prevent too many connections
+  if (!global._mongoClientPromise) {
     client = new MongoClient(uri, options);
-    (global as any)._mongoClientPromise = client.connect();
+    global._mongoClientPromise = client.connect();
   }
-  clientPromise = (global as any)._mongoClientPromise;
+  clientPromise = global._mongoClientPromise;
 } else {
+  // Create a new client in production
   client = new MongoClient(uri, options);
   clientPromise = client.connect();
 }
