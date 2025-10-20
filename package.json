@@ -10,6 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@auth/mongodb-adapter": "^3.11.0",
     "@cashfreepayments/cashfree-js": "^1.0.5",
     "@next/bundle-analyzer": "^15.5.4",
     "@onesignal/node-onesignal": "^5.3.1-beta1",
@@ -34,6 +35,7 @@
     "jspdf": "^3.0.1",
     "lucide-react": "^0.539.0",
     "moment": "^2.30.1",
+    "mongodb": "^6.20.0",
     "mongoose": "^8.17.1",
     "motion": "^12.23.12",
     "next": "15.4.6",

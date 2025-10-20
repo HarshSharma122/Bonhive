@@ -5,8 +5,11 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import clientPromise from "@/lib/mongo_adap";
 
 export const authOptions: NextAuthOptions = {
+  adapter:MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
       id: "credentials",
