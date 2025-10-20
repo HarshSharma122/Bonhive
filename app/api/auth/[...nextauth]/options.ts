@@ -6,15 +6,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 
-
-
-
-
-
-
-
-
-
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -74,40 +65,6 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GITHUB_SECRET!,
     }),
   ],
-
-  events: {
-  createUser: async ({ user }) => {
-      try {
-        await fetch("https://api.useplunk.com/v1/track", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.PLUNK_API_KEY}`,
-          },
-          body: JSON.stringify({
-            event: "new_project",
-            email: user.email,
-            data: {
-              name: user.name,
-              message: `
-            <h1>Welcome, ${user.name}</h1>
-            <p>Welcome to Bonhive! 🎉We’re excited to help you manage your projects, clients, and deadlines all in one place. Here’s a quick tip to get started:<p>
-            <p>1.Add your first project</p>
-            <p>2.Download the invoice</p>
-            <p>3. Track progress effortlessly</p>
-        
-            <p>Need help? Our support team is here for you anytime.
- Happy freelancing,
-The Bonhive Team</p>
-          `,
-            },
-          }),
-        });
-      } catch (err) {
-        console.error("Plunk error:", err);
-      }
-    },
-  },
 
   callbacks: {
     async jwt({ token, user }) {
