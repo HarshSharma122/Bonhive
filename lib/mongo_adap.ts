@@ -9,6 +9,7 @@ if (!uri) {
 
 // Extend the global type to include our cached MongoClientPromise
 declare global {
+    
   // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
