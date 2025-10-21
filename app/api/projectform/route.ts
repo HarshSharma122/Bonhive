@@ -33,6 +33,7 @@ export const POST = async (request: NextRequest) => {
       proposal,
       IshourBillable,
       hourlyRate,
+      projectPriority,
     } = await request.json();
 
     if (
@@ -60,6 +61,7 @@ export const POST = async (request: NextRequest) => {
         location,
         isNotified: false,
         notes,
+        projectPriority,
         leadSource,
         desc,
         proposal,
@@ -131,6 +133,7 @@ export const POST = async (request: NextRequest) => {
         desc,
         isNotified: false,
         proposal,
+        projectPriority,
         userName: session.user.name,
         IshourBillable,
         hourlyRate,

@@ -262,6 +262,7 @@ export interface projects {
   totalMin: number;
   totalSec: number;
   totalBill: number;
+  projectPriority:string;
   IshourBillable: boolean;
   completedMonth: string;
   hourlyRate: number;

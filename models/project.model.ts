@@ -29,6 +29,7 @@ interface projectType {
   IshourBillable: boolean;
   completedMonth: string;
   hourlyRate: number;
+  projectPriority:string;
   status:
     | "proposal-sent"
     | "negotiation"
@@ -160,6 +161,10 @@ const projectSchema = new Schema<projectType>(
       type:Boolean,
       required:true,
       default:false,
+    },
+    projectPriority:{
+      type:String,
+      default:"none"
     }
   },
   {

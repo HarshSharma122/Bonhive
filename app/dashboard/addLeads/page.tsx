@@ -17,6 +17,7 @@ const Page = () => {
   const [inputValue, setInputValue] = useState({
     clientName: "",
     clientBudget: "",
+    projectPriority: "",
     email: "",
     contact: "",
     location: "",
@@ -139,7 +140,6 @@ const Page = () => {
     setIsRoaming(true);
 
     try {
-      
       const response = await fetch("/api/projectform", {
         method: "POST",
         headers: {
@@ -157,6 +157,7 @@ const Page = () => {
           location: inputValue.location,
           notes: inputValue.notes,
           leadSource: inputValue.leadSource,
+          projectPriority:inputValue.projectPriority,
           proposal: inputValue.proposal,
           IshourBillable: IshourBillable,
           hourlyRate: inputValue.hourlyRate,
@@ -418,6 +419,26 @@ const Page = () => {
                         </p>
                       )}
                     </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Project Priority*
+                      </label>
+                      <div
+                        className={`flex items-center px-4 py-3 border rounded-lg focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-transparent transition-all border-gray-300`}
+                      >
+                        <select
+                          name="projectPriority"
+                          value={inputValue.projectPriority}
+                          onChange={handleChange}
+                          className="focus:outline-none"
+                        >
+                          <option value="#">Priority</option>
+                          <option value="low">Low</option>
+                          <option value="medium">Medium</option>
+                          <option value="high">High</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -665,7 +686,6 @@ const Page = () => {
                           value={inputValue.hourlyRate}
                           onChange={handleChange}
                         />
-                       
                       </div>
                       {errors.hourlyRate && (
                         <p className="mt-1 text-sm text-red-500">

@@ -169,8 +169,6 @@ const Page = ({
     }
   }, [second, min]);
 
- 
-
   const getStatusColor = (status: string) => {
     const statusColors: Record<status, string> = {
       completed:
@@ -395,6 +393,15 @@ const Page = ({
                             {project.status.charAt(0).toUpperCase() +
                               project.status.slice(1)}
                           </span>
+                          {project?.projectPriority && (
+                            <span
+                              className={`px-4 py-2 rounded-full text-sm font-semibold border ${getStatusColor(
+                                project.status
+                              )}`}
+                            >
+                              {project.projectPriority} Priority
+                            </span>
+                          )}
                         </div>
                         {project.desc && (
                           <p className="text-gray-600 text-sm mt-2">
@@ -893,11 +900,7 @@ const Page = ({
                       "review",
                       "payment pending",
                     ].map((status, index) => (
-                      <option
-                        value={status}
-                        key={index}
-                        className="bg-white"
-                      >
+                      <option value={status} key={index} className="bg-white">
                         {status.charAt(0).toUpperCase() +
                           status.slice(1).replace("-", " ")}
                       </option>

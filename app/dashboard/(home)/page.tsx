@@ -19,6 +19,7 @@ import { useSonnerDetailsStore } from "@/zustand/useSonnerDetailsStore";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   CheckCircle,
+  ChevronsUp,
   Circle,
   Clock,
   Projector,
@@ -90,7 +91,7 @@ const RevenueCard = ({
 }: {
   title: string;
   value: string | number;
-  subtitle: string;
+  subtitle?: string;
   trend?: string;
   delay: number;
 }) => (
@@ -108,8 +109,6 @@ const RevenueCard = ({
     )}
   </motion.div>
 );
-
-
 
 const Page = () => {
   const { projects, addProjects } = useProjectStore();
@@ -129,6 +128,12 @@ const Page = () => {
 
   const { user, setUser } = useProfileStore();
   const [projectCountMonth, setProjectMonth] = useState("0");
+
+  const [priority, setPriority] = useState({
+    highCount: "",
+    mediumCount: "",
+    lowCount: "",
+  });
 
   useEffect(() => {
     if (projects?.length > 0) {
@@ -180,6 +185,29 @@ const Page = () => {
         .length.toString();
 
       setProjectMonth(projectCountByMonth);
+
+      // for priority
+
+      const highPriority = projects
+        ?.filter((high) => high.projectPriority === "high")
+        ?.length.toString();
+      const mediumPriority = projects
+        ?.filter((high) => high.projectPriority === "medium")
+        ?.length.toString();
+      const lowPriority = projects
+        ?.filter((high) => high.projectPriority === "low")
+        ?.length.toString();
+
+      setPriority({
+        highCount: highPriority,
+        mediumCount: mediumPriority,
+        lowCount: lowPriority,
+      });
+
+
+
+
+
     }
   }, [projects]);
 
@@ -263,6 +291,8 @@ const Page = () => {
       icon: user?.userLanguage,
       description: "Fixed price project",
     },
+
+   
   ];
 
   const revenueStats = [
@@ -284,6 +314,22 @@ const Page = () => {
       value: completedProject || 0,
       subtitle: "Successful conversions",
     },
+     // for priority
+    {
+      id: 4,
+      title: "High Priority Projects",
+      value: priority.highCount || "0",
+    },
+    {
+      id: 5,
+      title: "Medium Priority Projects",
+      value: priority.mediumCount || "0",
+    },
+    {
+      id: 6,
+      title: "Low Priority Projects",
+      value: priority.lowCount || "0",
+    },
   ];
 
   const clientStats = [
@@ -303,7 +349,6 @@ const Page = () => {
   setTimeout(() => {
     setIsShow(false);
   }, 2000);
-
 
   return (
     <div onClick={() => setIsShow(false)} className="min-h-screen bg-gray-50">
