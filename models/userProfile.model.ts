@@ -28,6 +28,10 @@ type user = {
     feedBack: string;
   };
   clientCount: number;
+  userTimeZone:string;
+  isNotifyToday:boolean;
+  lastNotified:string;
+  userEmail:string;
 };
 
 const userProfileSchema = new Schema<user>(
@@ -66,6 +70,23 @@ const userProfileSchema = new Schema<user>(
       feedBack_type: String,
       feedBack: String,
     },
+    userTimeZone:{
+      type:String,
+      required:true,      
+    },
+
+    isNotifyToday:{
+      type:Boolean,
+      default:false
+    },
+    lastNotified:{
+      type:String,
+    },
+    userEmail:{
+      type:String,
+      required:true
+    }
+
   },
   {
     timestamps: true,

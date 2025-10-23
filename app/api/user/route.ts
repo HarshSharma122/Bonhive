@@ -4,9 +4,11 @@ import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/options";
 import { plunk } from "@/utilis/plunk-email";
+import { userTimeZone } from "@/utilis/user-timezone";
 
 export const POST = async (req: NextRequest) => {
   try {
+
     const user = await getServerSession(authOptions);
 
     if (!user) {
@@ -20,6 +22,10 @@ export const POST = async (req: NextRequest) => {
       );
     }
     const { userLanguage } = await req.json();
+    
+    const timeZone = userTimeZone();
+
+
     if (!userLanguage) {
       return NextResponse.json(
         {
@@ -37,6 +43,8 @@ export const POST = async (req: NextRequest) => {
       userLanguage,
       userName: user.user.name,
       userId: user.user._id,
+      userTimeZone:timeZone,
+      userEmail:user.user.email
     });
 
     await plunk.emails.send({
