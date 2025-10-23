@@ -14,20 +14,17 @@ export const GET = async () => {
         const userTime = moment().tz(user.userTimeZone);
         if (!userTime) return;
         const currentHour = userTime.hour();
+        const currentMin = userTime.minute();
 
         const localDate = userTime.format("dddd, MMMM D, YYYY"); // Thu, Oct 23, 2025
 
-
-        if (
-          user.lastNotified &&
-          Date.now() - new Date(user.lastNotified).getTime() >
-            24 * 60 * 60 * 1000
-        ) {
+        const userDate = moment(user.lastNotified).tz(user.userTimeZone);
+        if (!user.lastNotified || !userDate.isSame(userTime, "day")) {
           user.isNotifyToday = false;
           await user.save();
         }
 
-        if (currentHour >= 12) {
+        if (currentHour === 7 && currentMin < 50) {
           const projects = await PROJECT.find({ userId: user.userId });
 
           if (!projects.length) return;
