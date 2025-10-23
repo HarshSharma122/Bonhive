@@ -14,6 +14,10 @@ export const GET = async () => {
         const userTime = moment().tz(user.userTimeZone);
         if (!userTime) return;
         const currentHour = userTime.hour();
+
+        const localDate = userTime.format("dddd, MMMM D, YYYY"); // Thu, Oct 23, 2025
+
+
         if (
           user.lastNotified &&
           Date.now() - new Date(user.lastNotified).getTime() >
@@ -97,7 +101,7 @@ export const GET = async () => {
           <div style="font-family: 'Inter', Arial, sans-serif; color: #1e293b; background-color: #f9fafb; padding: 20px; border-radius: 10px;">
             <h2 style="color: #4f46e5;">Good Morning, ${user.userName} 👋</h2>
             <p style="font-size: 15px; color: #334155;">
-              Here’s your <strong>Bonhive Daily Focus Report</strong> for <b>${new Date().toLocaleDateString('en-us', {timeZone:user.userTimeZone})}</b>.
+              Here’s your <strong>Bonhive Daily Focus Report</strong> for <b>${localDate}</b>.
               Stay productive and focused today 💪
             </p>
   
