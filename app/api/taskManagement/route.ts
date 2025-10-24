@@ -16,15 +16,19 @@ export const GET = async () => {
         const currentHour = userTime.hour();
         const currentMin = userTime.minute();
 
-        const localDate = userTime.format("dddd, MMMM D, YYYY"); // Thu, Oct 23, 2025
+        
 
         const userDate = moment(user.lastNotified).tz(user.userTimeZone);
+       
+        
+        
         if (!user.lastNotified || !userDate.isSame(userTime, "day")) {
           user.isNotifyToday = false;
           await user.save();
-        }
+        }        
 
-        if (currentHour === 8 && currentMin <= 50) {
+
+        if (currentHour === 10 && currentMin <= 50) {
           const projects = await PROJECT.find({ userId: user.userId });
 
           if (!projects.length) return;
@@ -98,7 +102,7 @@ export const GET = async () => {
           <div style="font-family: 'Inter', Arial, sans-serif; color: #1e293b; background-color: #f9fafb; padding: 20px; border-radius: 10px;">
             <h2 style="color: #4f46e5;">Good Morning, ${user.userName} 👋</h2>
             <p style="font-size: 15px; color: #334155;">
-              Here’s your <strong>Bonhive Daily Focus Report</strong> for <b>${localDate}</b>.
+              Here’s your <strong>Bonhive Daily Focus Report</strong> for <b>${new Date().toDateString()}</b>.
               Stay productive and focused today 💪
             </p>
   
@@ -185,7 +189,7 @@ export const GET = async () => {
             });
 
             user.isNotifyToday = true;
-            user.lastNotified = new Date();
+            user.lastNotified = new Date().toISOString();
             await user.save();
           }
         }
