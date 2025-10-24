@@ -54,16 +54,24 @@ const Page = ({
       .filter((fil) => fil._id == showprojectDetails)
       .map((d) => d.duration);
     const som = result[0];
+    if(!som) return;
     const todayDate = new Date();
     const setDate = new Date(som);
 
+    todayDate.setHours(0, 0, 0, 0);
+    setDate.setHours(0, 0, 0, 0);
+
     const firstDateInMs = todayDate.getTime();
     const secondDateInMs = setDate.getTime();
+
+    console.log(firstDateInMs);
+    console.log(secondDateInMs);
 
     const differenceBtwDates = secondDateInMs - firstDateInMs;
     const aDayInMs = 24 * 60 * 60 * 1000;
 
     const daysDiff = Math.round(differenceBtwDates / aDayInMs);
+
     setReminderDays(daysDiff);
   }, [projects]);
 
