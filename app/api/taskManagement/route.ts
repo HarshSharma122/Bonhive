@@ -28,7 +28,7 @@ export const GET = async () => {
         }        
 
 
-        if (currentHour === 11 && currentMin <= 50) {
+        if (currentHour === 7 && currentMin <= 50) {
           const projects = await PROJECT.find({ userId: user.userId });
           console.log(currentHour);
           
