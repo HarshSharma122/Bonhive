@@ -24,7 +24,7 @@ export const GET = async () => {
           await user.save();
         }
 
-        if (currentHour === 7 && currentMin < 50) {
+        if (currentHour === 8 && currentMin <= 50) {
           const projects = await PROJECT.find({ userId: user.userId });
 
           if (!projects.length) return;
