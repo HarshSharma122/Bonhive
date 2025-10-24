@@ -105,7 +105,7 @@ export const GET = async () => {
             <h2 style="color: #4f46e5;">Good Morning, ${user.userName} 👋</h2>
             <p style="font-size: 15px; color: #334155;">
               Here’s your <strong>Bonhive Daily Focus Report</strong> for <b>${new Date().toDateString()}</b>.
-              Stay productive and focused today 💪
+              Stay productive and focused today
             </p>
   
             <table style="border-collapse: collapse; width: 100%; margin-top: 20px; background: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
@@ -186,7 +186,7 @@ export const GET = async () => {
           if (!user.isNotifyToday) {
             await plunk.emails.send({
               to: user.userEmail,
-              subject: `Good Morning 🎉 ${user.userName}`,
+              subject: `Good Morning ${user.userName}`,
               body: emailBody,
             });
 
