@@ -28,7 +28,6 @@ export const GET = async () => {
         }        
 
 
-        if (currentHour === 11 && currentMin <= 50) {
           const projects = await PROJECT.find({ userId: user.userId });
           console.log(currentHour);
           
@@ -195,7 +194,7 @@ export const GET = async () => {
             await user.save();
           }
         }
-      })
+      )
     );
 
     return NextResponse.json(
