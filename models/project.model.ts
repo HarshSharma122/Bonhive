@@ -43,6 +43,7 @@ interface projectType {
     | "progress"
     | "review"
     | "payment pending";
+    tax_rate:string
 }
 
 const projectSchema = new Schema<projectType>(
@@ -165,6 +166,9 @@ const projectSchema = new Schema<projectType>(
     projectPriority:{
       type:String,
       default:"none"
+    },
+    tax_rate:{
+      type:String, 
     }
   },
   {

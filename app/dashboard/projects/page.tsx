@@ -117,7 +117,7 @@ const ProjectCard = ({
             </p>
           </div>
 
-          {project.bidAmount ? (
+          {project.bidAmount > 0 ? (
             <div>
               <p className="text-xs text-gray-700 mb-1">Your Bid</p>
               <p className="font-medium text-gray-900">

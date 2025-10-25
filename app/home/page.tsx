@@ -31,11 +31,11 @@ const Page = () => {
   const [isRun, setIsRun] = useState<boolean>(false);
   const [hasUpdated, setHasUpdated] = useState<boolean>(false);
 
-  const router = useRouter();
+  // const router = useRouter();
 
-  if (user.isPlanSelected) {
-    router.replace("/dashboard"); // redirect if authenticated
-  }
+  // if (user.isPlanSelected) {
+  //   router.replace("/dashboard"); // redirect if authenticated
+  // }
 
   useEffect(() => {
     const fn = async () => {

@@ -260,6 +260,7 @@ export interface projects {
   services: services[];
   totalHour: number;
   totalMin: number;
+  tax_rate:string;
   totalSec: number;
   totalBill: number;
   projectPriority:string;

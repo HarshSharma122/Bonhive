@@ -16,6 +16,7 @@ export const POST = async (req: NextRequest) => {
       service_type,
       service_price,
       service_duration,
+      tax_rate,
     } = await req.json();
 
     if (!projectId) {
@@ -26,9 +27,9 @@ export const POST = async (req: NextRequest) => {
 
     if (instructions || proposal) {
       const response = await PROJECT.findById(projectId);
-      response.status = "pending",
-      response.proposal = proposal,
-      response.instructions = instructions
+      (response.status = "pending"),
+        (response.proposal = proposal),
+        (response.instructions = instructions);
 
       response.save();
     }
@@ -38,11 +39,8 @@ export const POST = async (req: NextRequest) => {
       });
       const response = await PROJECT.findById(projectId);
       response.status = statusUpdate;
-      response.completedMonth = completedMonth
-      
-      
-      
-      
+      response.completedMonth = completedMonth;
+
       response.save();
     }
     if (service_name || service_type || service_price || service_duration) {
@@ -97,6 +95,11 @@ export const POST = async (req: NextRequest) => {
         response.totalBill += payment;
       }
       response.save();
+    }
+    if (tax_rate) {
+      await PROJECT.findByIdAndUpdate(projectId, {
+        tax_rate:tax_rate
+      });
     }
     return NextResponse.json({ data: "updated SuccessFully" }, { status: 200 });
   } catch (error) {

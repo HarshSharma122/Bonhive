@@ -3,7 +3,7 @@ import { status } from "@/types/bonhive-types";
 import { formatPrice } from "@/utilis/formatPrice";
 import { useProjectStore } from "@/zustand/useProjectStore";
 import { useProfileStore } from "@/zustand/userProfileStore";
-import { BadgeDollarSign, Languages, Target, X } from "lucide-react";
+import { BadgeDollarSign, Languages, SquareSigma, Target, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { use, useEffect, useState } from "react";
 import { FcServices } from "react-icons/fc";
@@ -84,6 +84,7 @@ const Page = ({
     service_name: "",
     service_type: "",
     service_price: "",
+    tax_rate:"",
     service_duration: "",
   });
 
@@ -117,6 +118,7 @@ const Page = ({
           service_type: inputValue.service_type,
           service_price: inputValue.service_price,
           service_duration: inputValue.service_duration,
+          tax_rate:inputValue.tax_rate,
         }),
       });
 
@@ -133,6 +135,7 @@ const Page = ({
   };
 
   const [EditON, setEditON] = useState<boolean>(false);
+  const [isTaxRate, setIsTaxRate] = useState<boolean>(false);
   const [openfolder, setOpenFolder] = useState<boolean>(false);
   const [opentime, setOpenTimer] = useState(false);
   const [hour, setHour] = useState(0);
@@ -371,6 +374,13 @@ const Page = ({
             >
               <FcServices size={16} />
               Add Services
+            </button>
+            <button
+              onClick={() => setIsTaxRate(true)}
+              className="px-4 py-2.5 text-sm flex items-center gap-2 bg-purple-100 hover:bg-purple-200 text-purple-800 border border-purple-200 rounded-xl transition-all duration-200 hover:scale-105 shadow-sm shadow-purple-100"
+            >
+              <SquareSigma size={16} />
+              Tax Rate {projects.find((p) => p._id === showprojectDetails)?.tax_rate}%
             </button>
           </div>
         </div>
@@ -1051,6 +1061,66 @@ const Page = ({
                       <>
                         <FiSave size={16} />
                         Add service
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* for adding tax rate */}
+        {isTaxRate && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-gray-300">
+              <div className="flex items-center justify-between p-6 border-b border-gray-300">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Add Tax Rate for Invoice
+                </h2>
+                <button
+                  onClick={() => setIsTaxRate(false)}
+                  className="text-gray-500 hover:text-gray-700 transition-colors rounded-xl p-2 hover:bg-gray-100"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form className="p-6 space-y-6" onSubmit={registerAccount}>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Tax Rate (in %)*
+                  </label>
+                  <input
+                    required
+                    name="tax_rate"
+                    type="text"
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-gray-900 placeholder-gray-500"
+                    value={inputValue.tax_rate}
+                    onChange={handleChange}
+                    placeholder="Enter tax rate"
+                  />
+                </div>
+                <div className="flex justify-end pt-4 gap-3">
+                
+                  <button
+                    type="submit"
+                    disabled={isRoaming}
+                    className={`px-6 py-2.5 rounded-xl font-medium ${
+                      isRoaming
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700 transition-colors"
+                    } text-white flex items-center gap-2`}
+                  >
+                    {isRoaming ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        Adding...
+                      </>
+                    ) : (
+                      <>
+                        <FiSave size={16} />
+                        Add Tax Rate
                       </>
                     )}
                   </button>
