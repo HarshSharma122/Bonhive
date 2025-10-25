@@ -21,7 +21,6 @@ import { MdDashboardCustomize } from "react-icons/md";
 import Roaming from "./Roaming";
 
 const navItems = [
-  { icon: <HiHome size={18} />, label: "Home", path: "/home" },
   { icon: <MdDashboardCustomize size={18} />, label: "DashBoard", path: "/dashboard" },
   { icon: <LayoutDashboard size={18} />, label: "Projects", path: "/dashboard/projects" },
   { icon: <CgAdd size={18} />, label: "Add leads", path: "/dashboard/addLeads" },
