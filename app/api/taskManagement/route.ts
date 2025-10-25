@@ -29,15 +29,13 @@ export const GET = async () => {
 
 
         if (currentHour === 7 && currentMin <= 50) {
+
           const projects = await PROJECT.find({ userId: user.userId });
-          console.log(currentHour);
           
 
           if (!projects.length) return;
-
           const today = new Date();
-
-          const urgencyFn = projects.reduce((prev, next) => {
+          const urgencyFn = projects.filter(pro=>pro.status !== "completed").reduce((prev, next) => {
             const projectName = next.projectName;
             const projectPriority = next.projectPriority;
             const deadline = next.duration;
@@ -58,7 +56,6 @@ export const GET = async () => {
 
             return prev;
           }, []);
-
           const urgencyValue: number[] = Object.values(urgencyFn);
 
           const totalUrgency = urgencyValue.reduce(
@@ -66,7 +63,7 @@ export const GET = async () => {
             0
           );
 
-          const focus = projects.reduce((prev, next) => {
+          const focus = projects.filter(pro=>pro.status !== "completed").reduce((prev, next) => {
             const projectName = next.projectName;
             const projectPriority = next.projectPriority;
             const deadline = next.duration;
