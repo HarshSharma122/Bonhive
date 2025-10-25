@@ -100,8 +100,7 @@ export const GET = async () => {
     connectDb();
     const userProfile = await UserProfile.findOne({
       userId: user.user._id,
-    }).select(
-      "-_id -userId -invoices -updatedAt -createdAt -__v  -projectCount -user_feedback -isNotifyToday -isPlanSelected -lastNotified -userTimeZone");
+    }).select("-_id -userId -invoices -updatedAt -createdAt -__v  -projectCount -user_feedback -isNotifyToday -lastNotified -userTimeZone");
 
     if (userProfile?.subscrption) {
       userProfile.subscrption.id = null;
