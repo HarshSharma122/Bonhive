@@ -25,7 +25,6 @@ const navItems = [
   { icon: <LayoutDashboard size={18} />, label: "Projects", path: "/dashboard/projects" },
   { icon: <CgAdd size={18} />, label: "Add leads", path: "/dashboard/addLeads" },
   { icon: <Calendar size={18} />, label: "Calendar", path: "/dashboard/calender" },
-  { icon: <Clock size={18} />, label: "Task Management", path: "/dashboard/task-management" },
   { icon: <UserCog size={18} />, label: "Client Management", path: "/dashboard/client-management" },
 ];
 
