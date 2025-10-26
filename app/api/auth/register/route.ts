@@ -1,6 +1,5 @@
 import { connectDb } from "@/lib/db";
 import USER from "@/models/user.model";
-import { plunk } from "@/utilis/plunk-email";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (request: NextRequest) => {

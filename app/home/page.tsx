@@ -6,7 +6,6 @@ import { useSonnerDetailsStore } from "@/zustand/useSonnerDetailsStore";
 import { X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
 const Front = dynamic(() => import("./component/Front"));
@@ -30,12 +29,6 @@ const Page = () => {
   const { data: session } = useSession();
   const [isRun, setIsRun] = useState<boolean>(false);
   const [hasUpdated, setHasUpdated] = useState<boolean>(false);
-
-  // const router = useRouter();
-
-  // if (user.isPlanSelected) {
-  //   router.replace("/dashboard"); // redirect if authenticated
-  // }
 
   useEffect(() => {
     const fn = async () => {
