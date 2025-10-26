@@ -10,7 +10,6 @@ import { useRef, useState, useEffect } from "react";
 // Type definitions
 interface Service {
   service_price?: string | number;
-  // Add other service properties as needed
 }
 
 interface ProjectLog {
@@ -18,7 +17,6 @@ interface ProjectLog {
   hour?: number;
   minute?: number;
   rate?: number;
-  // Add other log properties as needed
 }
 
 interface ProjectData {
@@ -32,12 +30,10 @@ interface ProjectData {
   bidAmount?: number | string;
   tax_rate?: number | string;
   projectLogs?: ProjectLog[];
-  // Add other project properties as needed
 }
 
 interface UserProfile {
   userLanguage?: string;
-  // Add other user properties as needed
 }
 
 const Invoice = () => {
@@ -46,14 +42,18 @@ const Invoice = () => {
   const { data: session } = useSession();
   const invoiceId = params.get("invoiceid");
   const { projects } = useProjectStore();
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const ref = useRef<HTMLDivElement>(null); // ✅ Hook moved up
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const projectData: ProjectData | undefined = projects.find((project: ProjectData) => project._id === invoiceId);
+  const projectData: ProjectData | undefined = projects.find(
+    (project: ProjectData) => project._id === invoiceId
+  );
 
   if (!projectData) {
     return (
@@ -73,7 +73,7 @@ const Invoice = () => {
     );
   }
 
-  // Calculate totals with proper type handling
+  // ✅ Calculation logic
   const hostingSubtotal =
     projectData.services?.reduce(
       (sum: number, item: Service) => sum + Number(item.service_price || 0),
@@ -90,182 +90,70 @@ const Invoice = () => {
   const taxAmount = (subtotal * taxRate) / 100;
   const total = subtotal + taxAmount;
 
-  const ref = useRef<HTMLDivElement>(null);
-
+  // ✅ PDF generation logic
   const downloadPdf = async (): Promise<void> => {
-    if (!ref.current) return;
+  if (!ref.current) return;
 
-    setIsGenerating(true);
-    try {
-      const element = ref.current;
-      
-      // Create a clone for PDF generation
-      const clone = element.cloneNode(true) as HTMLElement;
-      
-      // Apply PDF-optimized styles
-      clone.style.width = '794px';
-      clone.style.height = 'auto';
-      clone.style.padding = '40px 20px';
-      clone.style.margin = '0';
-      clone.style.borderRadius = '0';
-      clone.style.boxShadow = 'none';
-      clone.style.transform = 'scale(1)';
-      clone.style.position = 'fixed';
-      clone.style.left = '-9999px';
-      clone.style.top = '0';
-      clone.style.zIndex = '-1000';
-      clone.style.background = '#ffffff';
-      clone.style.overflow = 'visible';
-      
-      // Apply PDF styles to all children
-      const applyPdfStyles = (el: HTMLElement): void => {
-        // Remove problematic styles
-        el.style.boxShadow = 'none';
-        el.style.borderRadius = '0';
-        el.style.backdropFilter = 'none';
-        el.style.backgroundImage = 'none';
-        el.style.transform = 'none';
-        el.style.overflow = 'visible';
-        
-        // Replace gradients with solid colors for better PDF rendering
-        if (el.style.background && el.style.background.includes('gradient')) {
-          if (el.style.background.includes('blue-600') || el.style.background.includes('purple-600')) {
-            el.style.background = '#4f46e5';
-            el.style.color = '#ffffff';
-          } else {
-            el.style.background = '#f8fafc';
-          }
-        }
-        
-        // Ensure good contrast
-        if (el.classList.contains('bg-gradient-to-br')) {
-          if (el.classList.contains('from-blue-50') || el.classList.contains('to-indigo-50')) {
-            el.style.background = '#eff6ff';
-          } else if (el.classList.contains('from-green-50') || el.classList.contains('to-emerald-50')) {
-            el.style.background = '#f0fdf4';
-          } else if (el.classList.contains('from-slate-50') || el.classList.contains('to-blue-50')) {
-            el.style.background = '#f8fafc';
-          }
-        }
-        
-        // Process children
-        Array.from(el.children).forEach(child => 
-          applyPdfStyles(child as HTMLElement)
-        );
-      };
-      
-      applyPdfStyles(clone);
-      document.body.appendChild(clone);
+  setIsGenerating(true);
+  try {
+    const element = ref.current;
 
-      // Wait for the clone to be rendered
-      await new Promise(resolve => setTimeout(resolve, 500));
+    // Clone for PDF generation
+    const clone = element.cloneNode(true) as HTMLElement;
+    clone.style.width = "794px";
+    clone.style.background = "#ffffff";
+    clone.style.position = "fixed";
+    clone.style.left = "-9999px";
+    clone.style.top = "0";
+    clone.style.zIndex = "-1000";
+    clone.style.padding = "40px 20px";
+    document.body.appendChild(clone);
 
-      const canvas = await html2canvas(clone, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        width: 794,
-        height: clone.scrollHeight,
-        windowWidth: 794,
-        windowHeight: clone.scrollHeight,
-        scrollX: 0,
-        scrollY: 0,
-        onclone: (clonedDoc: Document, clonedElement: HTMLElement) => {
-          // Additional optimization for the cloned element
-          const allElements = clonedElement.querySelectorAll('*');
-          allElements.forEach((el: Element) => {
-            const htmlEl = el as HTMLElement;
-            htmlEl.style.boxShadow = 'none';
-            htmlEl.style.borderRadius = '0';
-            htmlEl.style.backdropFilter = 'none';
-            htmlEl.style.overflow = 'visible';
-            
-            // Replace gradients with solid colors
-            if (htmlEl.style.background && htmlEl.style.background.includes('gradient')) {
-              if (htmlEl.style.background.includes('blue-600') || htmlEl.style.background.includes('purple-600')) {
-                htmlEl.style.background = '#4f46e5';
-                htmlEl.style.color = '#ffffff';
-              } else {
-                htmlEl.style.background = '#f8fafc';
-              }
-            }
-            
-            // Handle specific gradient classes
-            const classList = Array.from(htmlEl.classList);
-            if (classList.some(cls => cls.includes('bg-gradient'))) {
-              if (classList.some(cls => cls.includes('from-blue-600') || cls.includes('to-purple-600'))) {
-                htmlEl.style.background = '#4f46e5';
-                htmlEl.style.color = '#ffffff';
-              } else if (classList.some(cls => cls.includes('from-gray-50') || cls.includes('to-gray-100'))) {
-                htmlEl.style.background = '#f9fafb';
-              } else if (classList.some(cls => cls.includes('from-gray-800') || cls.includes('to-gray-900'))) {
-                htmlEl.style.background = '#1f2937';
-                htmlEl.style.color = '#ffffff';
-              }
-            }
-          });
-        }
-      });
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // Clean up clone
-      document.body.removeChild(clone);
+    const canvas = await html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      scrollY: 0, // ✅ ensures top is captured properly
+    });
 
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+    document.body.removeChild(clone);
 
-      // Calculate dimensions to fit page width with proper margins
-      const margin = 10;
-      const imgWidth = pageWidth - (2 * margin);
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const imgWidth = pageWidth;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      // Check if content needs multiple pages
-      let heightLeft = imgHeight;
-      let position = margin;
+    let heightLeft = imgHeight;
+    let position = 0;
 
-      // Add first page
-      pdf.addImage(
-        canvas.toDataURL("image/png", 1.0),
-        "PNG",
-        margin,
-        position,
-        imgWidth,
-        imgHeight,
-        undefined,
-        'FAST'
-      );
+    // ✅ draw first page
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
 
+    // ✅ add more pages if needed
+    while (heightLeft > pageHeight) {
+      position = position - pageHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
-
-      // Add new pages if needed
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(
-          canvas.toDataURL("image/png", 1.0),
-          "PNG",
-          margin,
-          position,
-          imgWidth,
-          imgHeight,
-          undefined,
-          'FAST'
-        );
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save(
-        `Invoice-${projectData.clientName || 'Unknown'}-${new Date().toISOString().split("T")[0]}.pdf`
-      );
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      // Fallback to simple print if PDF generation fails
-      window.print();
-    } finally {
-      setIsGenerating(false);
     }
-  };
+
+    pdf.save(
+      `Invoice-${projectData.clientName || "Unknown"}-${new Date()
+        .toISOString()
+        .split("T")[0]}.pdf`
+    );
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    window.print();
+  } finally {
+    setIsGenerating(false);
+  }
+};
+
 
   if (!isClient) {
     return (
@@ -279,6 +167,7 @@ const Invoice = () => {
     );
   }
 
+  // ✅ Main JSX
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
@@ -319,14 +208,14 @@ const Invoice = () => {
           </div>
         </div>
 
-        {/* Invoice Container */}
+        {/* Invoice */}
         <div className="flex justify-center">
           <div
             ref={ref}
             id="invoice-content"
             className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-gray-200 overflow-hidden print:shadow-none print:border-none print:rounded-none print:max-w-none"
-            style={{ minHeight: 'auto' }}
           >
+            {/* ... (the rest of your JSX stays exactly the same) ... */}
             {/* Premium Header - Simplified for PDF */}
             <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 p-6 text-white print:bg-gray-800 print:p-4">
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -554,20 +443,14 @@ const Invoice = () => {
                 </div>
               </div>
             </div>
+
+
           </div>
         </div>
-
-        {/* Download Hint */}
-        <div className="text-center mt-8 p-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 no-print">
-          <p className="text-gray-700 font-medium flex items-center justify-center gap-2">
-            <span className="text-xl">💡</span>
-            <strong>Pro Tip:</strong> For best results, use the "Download PDF" button. 
-            The invoice is optimized to fit perfectly on A4 paper.
-          </p>
-        </div>
       </div>
+      
 
-      {/* Print Styles */}
+{/* Print Styles */}
       <style jsx global>{`
         @media print {
           body * {
