@@ -2,12 +2,16 @@
 
 import Roaming from "@/components/Roaming";
 import { color, projects, Status, user } from "@/types/bonhive-types";
+import { fetchProjects } from "@/utilis/fetchData";
 import { formatPrice } from "@/utilis/formatPrice";
 import {useProjectStore } from "@/zustand/useProjectStore";
 import { useProfileStore} from "@/zustand/userProfileStore";
+import { useSonnerDetailsStore } from "@/zustand/useSonnerDetailsStore";
 import { Funnel, MoreVertical, X } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { MouseEventHandler, useEffect, useState } from "react";
+import useSWR from "swr";
 
 const FilterPill = ({
   label,
@@ -20,11 +24,11 @@ const FilterPill = ({
 }) => {
   return (
     <button
-      onClick={onclick}
-      className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border ${
-        active
-          ? "bg-gray-800 text-white border-gray-800 shadow-md"
-          : "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
+    onClick={onclick}
+    className={`px-4 py-2 rounded-full text-sm font-medium transition-colors border ${
+      active
+      ? "bg-gray-800 text-white border-gray-800 shadow-md"
+      : "bg-white text-gray-800 border-gray-300 hover:bg-gray-100"
       }`}
     >
       {label
@@ -56,7 +60,7 @@ const StatusBadge = ({ status }: { status: Status }) => {
     <span
       className={`text-xs px-3 py-1 rounded-full font-medium ${
         statusColors[status] || "bg-gray-100 text-gray-800 border border-gray-300"
-      }`}
+        }`}
     >
       {status.charAt(0).toUpperCase() + status.slice(1).replace("-", " ")}
     </span>
@@ -74,9 +78,9 @@ const ProjectCard = ({
 }) => {
   return (
     <div
-      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 cursor-pointer hover:border-gray-300 hover:shadow-md"
+    className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 cursor-pointer hover:border-gray-300 hover:shadow-md"
       onClick={onClick}
-    >
+      >
       <div className="p-5">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1 min-w-0">
@@ -174,10 +178,12 @@ const ProjectCard = ({
 };
 
 const Page = () => {
-  const { projects } = useProjectStore();
+  const { projects, addProjects } = useProjectStore();
   const router = useRouter();
   const { user } = useProfileStore();
-
+    const { sonnerDetails, addSonnerDetails } = useSonnerDetailsStore();
+  
+  
   const [isRoaming, setIsRoaming] = useState<boolean>(false);
   const [search, setSearch] = useState("");
   const [filterQuery, setFilterQuery] = useState("all");
@@ -197,6 +203,20 @@ const Page = () => {
     "paid",
     "payment pending",
   ];
+  
+
+  const { data: session } = useSession();
+  
+  // Fetch user data
+  const { data: projectData, error: projectError } = useSWR(
+    session ? "/api/projects" : null,
+    fetchProjects
+  );
+  
+  useEffect(() => {
+    if (projectData) addProjects(projectData);
+    else if (projectError) addSonnerDetails("you are not authenticated");
+  }, [projectData, addProjects, projectError]);
 
   useEffect(() => {
     let result = projects;

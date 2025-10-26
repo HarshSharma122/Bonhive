@@ -126,7 +126,7 @@ const Page = ({
         setTimeout(() => {
           setIsRoaming(false);
           setOpenMarkDown(false);
-          router.push("/dashboard/");
+          router.push("/dashboard/projects");
         }, 2000);
       }
     } catch (error) {

@@ -183,12 +183,7 @@ const Invoice = () => {
             </p>
           </div>
           <div className="flex gap-3 flex-wrap">
-            <button
-              onClick={() => window.print()}
-              className="min-w-[140px] bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 px-6 py-3 rounded-xl text-white font-semibold transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
-            >
-              🖨️ Print
-            </button>
+          
             <button
               onClick={downloadPdf}
               disabled={isGenerating}
@@ -434,10 +429,7 @@ const Invoice = () => {
                 <p className="font-semibold mb-2 print:text-sm">
                   Thank you for your business!
                 </p>
-                <p className="text-gray-400 text-xs mb-3 max-w-md mx-auto leading-relaxed print:text-gray-300">
-                  This is a computer-generated invoice. No signature required. 
-                  We appreciate the opportunity to serve you.
-                </p>
+               
                 <div className="text-gray-500 text-xs print:text-gray-400">
                   <span>bonhive.site • Professional Freelancing Services</span>
                 </div>
