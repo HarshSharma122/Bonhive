@@ -216,13 +216,7 @@ const Features: React.FC = () => {
             <p className="text-gray-600 text-sm md:text-base lg:text-lg mb-6 md:mb-8 max-w-2xl mx-auto px-2">
               Join thousands of freelancers who are already boosting their productivity with Bonhive
             </p>
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className=" bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 md:px-8 py-3 md:py-4 rounded-xl md:rounded-2xl font-bold text-sm md:text-base lg:text-lg shadow-xl hover:shadow-2xl transition-all duration-300 w-full sm:w-auto"
-            >
-              Get Started Free
-            </motion.button>
+            
           </div>
         </motion.div>
       </div>
