@@ -52,6 +52,7 @@ const Pricing = () => {
       description: "For growing businesses",
       features: [
         "Unlimited projects",
+        "Email support",
         "Advanced analytics",
         "Priority support",
         "Calendar support",
