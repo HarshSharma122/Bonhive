@@ -12,35 +12,40 @@ export const GET = async () => {
     await Promise.all(
       userProfile.map(async (user) => {
         const userTime = moment().tz(user.userTimeZone);
+        const userTimeUTC = userTime.utc().toISOString();
+
+        // Fetch all user's projects first
+
         if (!userTime) return;
         const currentHour = userTime.hour();
         const currentMin = userTime.minute();
 
-        
-
         const userDate = moment(user.lastNotified).tz(user.userTimeZone);
-       
-        
-        
+
         if (!user.lastNotified || !userDate.isSame(userTime, "day")) {
           user.isNotifyToday = false;
           await user.save();
-        }        
-
+        }
 
         if (currentHour === 7 && currentMin <= 50) {
+          const allProjects = await PROJECT.find({ userId: user.userId });
 
-          const projects = await PROJECT.find({ userId: user.userId });
-          
+          // Filter based on user’s local (converted to UTC) current time
+          const projects = allProjects.filter(
+            (p) => new Date(p.duration) > new Date(userTimeUTC)
+          );
 
           if (!projects.length) return;
+
           const today = new Date();
-          const urgencyFn = projects.filter(pro=>pro.status !== "completed").reduce((prev, next) => {
+          const urgencyFn = projects.reduce((prev, next) => {
             const projectName = next.projectName;
             const projectPriority = next.projectPriority;
             const deadline = next.duration;
             const difference = new Date(deadline).getTime() - today.getTime();
+
             const oneDayInMilliseconds = 1000 * 60 * 60 * 24;
+
             const daysLeft = Math.ceil(difference / oneDayInMilliseconds);
 
             const urgency =
@@ -63,7 +68,7 @@ export const GET = async () => {
             0
           );
 
-          const focus = projects.filter(pro=>pro.status !== "completed").reduce((prev, next) => {
+          const focus = projects.reduce((prev, next) => {
             const projectName = next.projectName;
             const projectPriority = next.projectPriority;
             const deadline = next.duration;
@@ -180,6 +185,9 @@ export const GET = async () => {
           </div>
         `;
 
+
+        console.log(projects);
+        
           if (!user.isNotifyToday) {
             await plunk.emails.send({
               to: user.userEmail,
